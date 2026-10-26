@@ -4,6 +4,7 @@
 // ear, fix it from the tray. Diagnosis and repair are scored separately.
 import * as core from "../../../packages/engine-core/index.js";
 import { EngineClient } from "../../../packages/engine-client/engine-client.js";
+import { Juice } from "../../../packages/game-kit/juice.js";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, concepts = [], targetLang = "es";
@@ -111,4 +112,5 @@ async function endShop() {
   $("#endExplain").innerHTML = `<strong>Engine next:</strong> ${esc(next?.rationale || "More jobs.")}<br><span class="hint">Repair evidence (Stage 7) exists only here — producing and proofreading are different muscles.</span>`;
   show("screen-end"); syncBadge();
 }
+Juice.observeFeedback("#feedback");
 boot().catch((e) => { $("#titleContext").textContent = `Shop failed (${e.message}). Reload.`; $("#startBtn").disabled = true; });

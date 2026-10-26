@@ -118,6 +118,22 @@ async function boot() {
     $("#makerCopy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(new URL(url, location.href).href); $("#makerCopied").textContent = "Link copied — paste it anywhere to share your game."; } catch { $("#makerCopied").textContent = new URL(url, location.href).href; } });
   });
 
+  // UI: games are the product. System depth (Lab, profile, classrooms,
+  // instructor, shelf) folds into calm collapsibles; the Mirror stays open
+  // because seeing your evaluation is the point.
+  for (const id of ["lab", "profile", "classrooms", "instructor", "shelf"]) {
+    const sec = document.getElementById(id);
+    if (!sec || sec.tagName === "DETAILS") continue;
+    const det = document.createElement("details");
+    det.className = sec.className; det.id = sec.id; det.classList.add("fold");
+    const sum = document.createElement("summary");
+    sum.innerHTML = sec.querySelector("h2")?.innerHTML || id;
+    const body = document.createElement("div"); body.className = "fold-body";
+    while (sec.firstChild) body.appendChild(sec.firstChild);
+    const h2 = body.querySelector("h2"); if (h2) h2.remove();
+    det.append(sum, body);
+    sec.replaceWith(det);
+  }
   // ---- Profile: name, demo mode, training modes ----
   $("#profileName").value = localStorage.getItem("ev:profileName") || "";
   $("#demoModeToggle").checked = localStorage.getItem("ev:demoMode") === "1";

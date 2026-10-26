@@ -4,6 +4,7 @@
 // real recordings, linked to streaming search — lyrics are never reproduced.
 import * as core from "../../../packages/engine-core/index.js";
 import { EngineClient } from "../../../packages/engine-client/engine-client.js";
+import { Juice } from "../../../packages/game-kit/juice.js";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, concepts = [], targetLang = "es", demoMode = false;
@@ -109,4 +110,5 @@ async function endGame() {
   $("#endExplain").innerHTML = `<strong>Engine next:</strong> ${esc(next?.rationale || "Another night.")}<br><span class="hint">Cultural evidence (Stages 3–4–8): distinctions and meaning carried — the anti-dictionary skill every real translation eventually demands.</span>`;
   show("screen-end"); syncBadge();
 }
+Juice.observeFeedback("#feedback");
 boot().catch((e) => { $("#titleContext").textContent = `Milonga failed (${e.message}). Reload.`; $("#startBtn").disabled = true; });

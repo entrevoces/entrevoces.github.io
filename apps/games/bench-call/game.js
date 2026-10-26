@@ -4,6 +4,7 @@
 // eyes lead, voice follows, record keeps.
 import * as core from "../../../packages/engine-core/index.js";
 import { EngineClient } from "../../../packages/engine-client/engine-client.js";
+import { Juice } from "../../../packages/game-kit/juice.js";
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -221,6 +222,7 @@ async function endSitting() {
   showScreen("screen-end");
 }
 
+Juice.observeFeedback("#feedback");
 boot().catch((e) => {
   $("#titleContext").textContent = `The desk failed to open (${e.message}). Reload — the cases reschedule themselves.`;
   $("#startBtn").disabled = true;

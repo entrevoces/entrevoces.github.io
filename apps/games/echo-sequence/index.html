@@ -3,38 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Echo Sequence — Hold the thread · ENTRE VOCES</title>
+<title>Echo Sequence — Firefly Path · ENTRE VOCES</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="game-header">
   <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
-  <div><h1>Echo Sequence</h1><p class="tagline">Hear the thread. Hold it in order. Say it back whole.</p></div>
+  <div><h1>Echo Sequence</h1><p class="tagline">A firefly lights the path. Your memory walks it.</p></div>
   <span id="syncBadge" class="pill pill-local">Local-only</span>
 </header>
 <main>
   <section id="screen-title" class="screen is-active">
     <div class="panel panel-hero">
       <p class="kicker">Memory garden · hold the thread</p>
-      <h2>Interpreters do not remember words. They remember order.</h2>
-      <p>Stones light and speak in sequence — a dose, a date, a negation, a name. Watch. Then walk the same stones from memory. Each round adds a stone. Drop the thread and the garden shows you exactly where it slipped.</p>
-      <p id="titleContext" class="hint">Tuning the stones…</p>
-      <button id="startBtn" class="btn btn-primary btn-large" type="button">Enter the garden</button>
+      <h2>The pond is dark. The firefly remembers the way.</h2>
+      <p>Watch the firefly light the stones and hear each word. Then tap the stones in the same order — the lantern-bearer walks only where your memory is sure. Three stumbles dim the lantern for tonight.</p>
+      <p id="titleContext" class="hint">Waking the firefly…</p>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Step onto the pond</button>
     </div>
   </section>
   <section id="screen-play" class="screen">
-    <div class="hud"><span id="hudRound" class="pill pill-strong"></span><span id="hudThread" class="pill"></span><span id="hudLives" class="pill"></span></div>
-    <p id="phaseLabel" class="phase-label">Watch the stones…</p>
-    <div id="stoneField" class="stone-field"></div>
+    <div class="hud"><span id="hudRound" class="pill pill-strong"></span><span id="hudThread" class="pill"></span><span id="hudLives" class="pill"></span><span id="phaseLabel" class="pill"></span></div>
+    <canvas id="game" width="960" height="540" aria-label="Firefly Path — tap the stones in the order the firefly lit them"></canvas>
     <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-    <div class="play-actions"><button id="replayBtn" class="btn" type="button">Hear it again (costs a petal)</button><button id="quitBtn" class="btn btn-ghost" type="button">Leave garden</button></div>
+    <div class="play-actions"><button id="replayBtn" class="btn" type="button">Firefly, again (costs a petal)</button><button id="quitBtn" class="btn btn-ghost" type="button">Leave the pond</button></div>
   </section>
   <section id="screen-end" class="screen">
     <div class="panel panel-hero">
-      <p class="kicker">Garden report</p><h2 id="endTitle">The thread rests.</h2>
+      <p class="kicker">Pond report</p><h2 id="endTitle">The firefly rests.</h2>
       <div id="endStats"></div><div id="endExplain" class="explain"></div>
       <div class="play-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">Walk again</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
     </div>

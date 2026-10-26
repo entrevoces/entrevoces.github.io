@@ -81,3 +81,11 @@ footer { max-width:980px; margin:0 auto; padding:0 20px 28px; color:var(--ink-so
 .suggest-card{transition:transform .18s ease}
 .suggest-card:hover{transform:translateY(-3px)}
 @media (prefers-reduced-motion: reduce){.game-card,.suggest-card{transition:none}.game-card:hover,.suggest-card:hover{transform:none}}
+
+.fold{padding:0}
+.fold>summary{list-style:none;cursor:pointer;padding:20px 22px;font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:700}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::after{content:"+ open";float:right;font-family:"Public Sans",sans-serif;font-size:14px;color:#0e7a68}
+.fold[open]>summary::after{content:"- close"}
+.fold-body{padding:0 22px 22px}
+@media(min-width:900px){.games-grid>.game-card:first-child{grid-column:span 2}.games-grid>.game-card:first-child .game-art{min-height:120px}}

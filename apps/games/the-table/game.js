@@ -4,6 +4,7 @@
 // are different evidence — the engine finally records both.
 import * as core from "../../../packages/engine-core/index.js";
 import { EngineClient } from "../../../packages/engine-client/engine-client.js";
+import { Juice } from "../../../packages/game-kit/juice.js";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, domain, concepts = [], targetLang = "es";
@@ -120,4 +121,5 @@ async function endSit() {
   $("#endExplain").innerHTML = `<strong>Engine next:</strong> ${esc(next?.rationale || "Sit again.")}<br><span class="hint">The Table alone records strategy (Stage 5 judgment) separately from fidelity (Stage 8) — handlers and translators fail differently.</span>`;
   show("screen-end"); syncBadge();
 }
+Juice.observeFeedback("#turnFeedback");
 boot().catch((e) => { $("#titleContext").textContent = `Table failed (${e.message}). Reload.`; $("#startBtn").disabled = true; });
