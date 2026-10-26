@@ -1,9 +1,24 @@
 {
   "gameId": "loteria-aula",
-  "label": "Lotería de Aula",
-  "domainIds": ["oregon-medical", "oregon-legal", "ontario-real-estate", "oregon-cultivation", "california-tax", "ai-technology"],
-  "competences": ["listening", "professional-terminology", "bilingual-terminology"],
-  "stages": [1, 2],
+  "label": "Loter\u00eda de Aula",
+  "domainIds": [
+    "oregon-medical",
+    "oregon-legal",
+    "ontario-real-estate",
+    "oregon-cultivation",
+    "california-tax",
+    "ai-technology"
+  ],
+  "competences": [
+    "listening",
+    "professional-terminology",
+    "bilingual-terminology"
+  ],
+  "stages": [
+    1,
+    2,
+    8
+  ],
   "engineUrl": "http://127.0.0.1:8787",
   "offlineSeed": "concepts-subset.json",
   "version": 1

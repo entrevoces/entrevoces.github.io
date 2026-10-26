@@ -49,10 +49,11 @@ function startGame() {
   G = { p: { x: 120, y: 430, vx: 0, vy: 0, face: 1, ground: false }, bullets: [], drones: [], parts: [], score: 0, shield: 3, hits: 0, shots: 0, wave: 0, current: null, over: false, t: 0 };
   show("screen-play"); nextWave(); loop();
 }
-function hud() { $("#hudScore").textContent = `Score ${G.score}`; $("#hudShield").textContent = `Shield ${"●".repeat(Math.max(0, G.shield))}${"○".repeat(Math.max(0, 3 - G.shield))}`; $("#hudWave").textContent = `Wave ${G.wave}`; $("#hudPrompt").textContent = G.current ? `Target: ${G.current.terms.en.term} → ?` : ""; }
+function hud() { $("#hudScore").textContent = `Score ${G.score}`; $("#hudShield").textContent = `Shield ${"●".repeat(Math.max(0, G.shield))}${"○".repeat(Math.max(0, 3 - G.shield))}`; $("#hudWave").textContent = `Wave ${G.wave}`; if (!G.current) { $("#hudPrompt").textContent = ""; return; } const ex = G.current.examples?.[0]?.en || ""; $("#hudPrompt").textContent = G.sentenceWave && ex ? `In context: “${ex.replace(G.current.terms.en.term, "_____")}” → blast its equivalent` : `Target: ${G.current.terms.en.term} → ?`; }
 function nextWave() {
   G.wave++;
   G.current = concepts[Math.floor(Math.random() * concepts.length)];
+  G.sentenceWave = G.wave % 3 === 0;
   const wrongs = shuffle(concepts.filter((c) => c.conceptId !== G.current.conceptId)).slice(0, 3);
   const defs = shuffle([{ c: G.current, gold: true }, ...wrongs.map((c) => ({ c, gold: false }))]);
   const lanes = [120, 205, 285, 360];
@@ -74,7 +75,7 @@ function resolveDrone(d) {
     G.hits++; G.score += 100 + G.wave * 10;
     burst(d.x, d.y, "#2ee6a8");
     $("#feedback").textContent = `Direct hit — “${tgt(c)}” is the true equivalent. The bastion holds.`; $("#feedback").className = "feedback good";
-    engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "neon-bastion", activityType: "retrieval", stage: 6, languageDirection: `en->${targetLang}`, correct: true, score: 1, responseSummary: `Bastion wave ${G.wave} shot the true drone` });
+    engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "neon-bastion", activityType: G.sentenceWave ? "contextual-usage" : "retrieval", ...(G.sentenceWave ? { stage: 5 } : { stage: 6 }), languageDirection: `en->${targetLang}`, correct: true, score: 1, responseSummary: `Bastion wave ${G.wave} shot the true drone` });
     G.drones = []; setTimeout(() => { if (G && !G.over) nextWave(); }, 450);
   } else {
     G.shield--;

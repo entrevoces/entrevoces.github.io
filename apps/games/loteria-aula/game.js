@@ -39,7 +39,8 @@ async function boot() {
 function startGame() {
   const n = Number($("#boardCount").value || 4);
   const pool = shuffle(concepts);
-  const boards = Array.from({ length: n }, (_, b) => ({ name: `Tabla ${b + 1}`, cells: shuffle(pool).slice(0, 16), marked: new Set(), won: false }));
+  const BOARD_NAMES = ["La Valiente", "El Soñador", "La Abuela Sabia", "El Rayo"];
+  const boards = Array.from({ length: n }, (_, b) => ({ name: `Tabla ${b + 1} · ${BOARD_NAMES[b % BOARD_NAMES.length]}`, cells: shuffle(pool).slice(0, 16), marked: new Set(), won: false }));
   // Guarantee every board shares the deck pool; deck is all concepts shuffled.
   G = { boards, deck: shuffle(concepts), idx: -1, current: null, correct: 0, wrong: 0, winner: null };
   $("#boards").innerHTML = boards.map((b, bi) => `<section class="board" id="board-${bi}"><h3>${esc(b.name)}</h3><div class="grid">${b.cells.map((c, ci) => `<button type="button" class="cell" data-board="${bi}" data-cell="${ci}">${esc(c.terms.en.term)}<small>${esc(c.terms.en.term === tgt(c) ? "" : "")}</small></button>`).join("")}</div></section>`).join("");
@@ -52,6 +53,8 @@ function callNext() {
   G.idx++;
   if (G.idx >= G.deck.length) { endGame(null); return; }
   G.current = G.deck[G.idx];
+  const CRIES = ["¡Corre y se va!", "¡La buena, escuchen!", "¡Atención, la siguiente!", "¡Se va, se va…!"];
+  $("#feedback").textContent = CRIES[G.idx % CRIES.length];
   $("#callerTerm").textContent = tgt(G.current);
   $("#callerSub").textContent = demoMode ? `English: ${G.current.terms.en.term}` : "";
   speak(tgt(G.current), targetLang);
@@ -66,7 +69,8 @@ function mark(btn) {
     board.marked.add(ci); btn.classList.add("marked"); G.correct++;
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "loteria-aula", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: true, score: 1, responseSummary: `Lotería: heard ${tgt(c)}, marked ${c.terms.en.term} (Tabla ${bi + 1})` });
     $("#feedback").textContent = `¡Buena! Tabla ${bi + 1} marks “${c.terms.en.term}”.`; $("#feedback").className = "feedback good";
-    if (checkWin(board)) { board.won = true; G.winner = board; document.querySelector(`#board-${bi}`).classList.add("winner"); endGame(board); return; }
+    const winKind = checkWin(board);
+    if (winKind) { startInterpretation(board, winKind); return; }
   } else {
     G.wrong++; btn.classList.add("wrong"); setTimeout(() => btn.classList.remove("wrong"), 600);
     engine.recordEvidence({ conceptId: G.current.conceptId, areaId: G.current.areaIds[0], gameId: "loteria-aula", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: false, score: 0, responseSummary: `Lotería: marked ${c.terms.en.term} for ${tgt(G.current)}` });
@@ -82,6 +86,35 @@ function checkWin(board) {
   if (m.size === 16) return `¡tabla llena!`;
   return null;
 }
+
+function startInterpretation(board, winKind) {
+  // A line is not a win until its meaning survives a sentence. The winning
+  // tabla must interpret one full sentence carrying the called concept.
+  G.pendingWin = board;
+  const c = G.current;
+  const ex = c.examples?.[0] || { en: c.definition.en, es: c.definition.es || c.definition.en };
+  const faithful = ex[targetLang] || ex.es;
+  const wrongConcept = concepts.find((x) => x.conceptId !== c.conceptId);
+  const wrongTerm = wrongConcept ? (wrongConcept.terms[targetLang]?.term || wrongConcept.terms.es.term) : "—";
+  const myTerm = c.terms[targetLang]?.term || c.terms.es.term;
+  const distorted = faithful.includes(myTerm) ? faithful.replace(myTerm, wrongTerm) : `${faithful} (${wrongTerm})`;
+  const options = [faithful, distorted].sort(() => Math.random() - 0.5);
+  let panel = document.querySelector("#interpRound");
+  if (!panel) { panel = document.createElement("section"); panel.id = "interpRound"; panel.className = "caller panel"; document.querySelector("#boards").before(panel); }
+  panel.hidden = false;
+  panel.innerHTML = `<p class="kicker">La ronda del sentido · ${esc(board.name)} has ${esc(winKind)} — now interpret to keep it</p><div class="caller-card"><span>“${esc(ex.en)}”</span><small class="demo-sub">${demoMode ? `Carry it into ${targetLang === "zh" ? "中文" : "Español"} — meaning, not words.` : ""}</small></div><div class="caller-actions">${options.map((o) => `<button type="button" class="btn" data-interp="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+  panel.querySelectorAll("[data-interp]").forEach((btn) => btn.addEventListener("click", () => {
+    const ok = btn.dataset.interp === faithful;
+    engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "loteria-aula", activityType: "interpretation", stage: 8, languageDirection: `en->${targetLang}`, correct: ok, score: ok ? 1 : 0.1, responseSummary: `Lotería sentido round: ${ok ? "carried" : "dropped"} ${c.conceptId}` });
+    panel.hidden = true;
+    if (ok) { board.won = true; G.winner = board; document.querySelectorAll(".board")[G.boards.indexOf(board)]?.classList.add("winner"); endGame(board); }
+    else { G.pendingWin = null; $("#feedback").textContent = `The line slips away — “${faithful}” was the carrying. Lines can be re-won; meanings must be kept.`; $("#feedback").className = "feedback bad"; }
+    syncBadge();
+  }));
+  $("#feedback").textContent = `${board.name} lines up ${winKind}! One sentence stands between them and ¡Lotería!`; $("#feedback").className = "feedback";
+  speak(ex.en, "en");
+}
+
 async function endGame(winner) {
   const g = G; const dm = dailyMark("loteria-aula", g?.correct || 0);
   await engine.sync().catch(() => {});

@@ -59,7 +59,7 @@ function resolveMelon(m) {
   if (m.gold) {
     G.harvest++; G.oxygen = Math.min(100, G.oxygen + 22);
     for (let i = 0; i < 12; i++) G.bubbles.push({ x: m.x, y: m.y, r: 2 + Math.random() * 4, vy: -1 - Math.random() * 1.6, life: 50 });
-    $("#feedback").textContent = `Ripe. “${tgt(c)}” is “${c.terms.en.term}” — your ears knew before your eyes did.`; $("#feedback").className = "feedback good";
+    $("#feedback").textContent = `Ripe. “${tgt(c)}” is “${c.terms.en.term}” — Meloncita (your sub) does a small happy loop.`; $("#feedback").className = "feedback good";
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "melon-reef", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: true, score: G.heard > 1 ? 0.8 : 1, assistance: G.heard > 1 ? ["relisten"] : [], responseSummary: `Reef heard ${tgt(c)} and harvested ${c.terms.en.term}` });
     if (G.harvest >= 8) { endGame(); return; }
     G.melons = []; setTimeout(() => { if (G && !G.over) { nextMelon(); listen(); } }, 500);
@@ -126,6 +126,7 @@ function draw() {
   ctx.fillStyle = "#2fae5f"; ctx.beginPath(); ctx.ellipse(0, 0, 38, 24, 0, 0, 7); ctx.fill();
   ctx.strokeStyle = "#145c2e"; ctx.lineWidth = 3; for (const off of [-18, 0, 18]) { ctx.beginPath(); ctx.ellipse(off, 0, 8, 23, 0, 0, 7); ctx.stroke(); }
   ctx.fillStyle = "#bdeff5"; ctx.beginPath(); ctx.arc(13, -5, 10, 0, 7); ctx.fill(); ctx.strokeStyle = "#ffe66d"; ctx.lineWidth = 3; ctx.stroke();
+  ctx.fillStyle = "rgba(255,107,129,.75)"; ctx.beginPath(); ctx.arc(24, 3, 4, 0, 7); ctx.fill(); // Meloncita blush
   ctx.fillStyle = "#ffe66d"; ctx.fillRect(-46, -7, 10, 14); // tail fin housing
   const prop = Math.sin(G.t * 0.5) * 8; ctx.fillRect(-50, -2 + prop * 0.2, 5, 4 + Math.abs(prop) * 0.2);
   ctx.restore();
