@@ -76,3 +76,8 @@ footer { max-width:980px; margin:0 auto; padding:0 20px 28px; color:var(--ink-so
 .lb-row{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border:1px solid #cfe0d8;border-radius:8px;margin:5px 0;background:#fff}
 .lb-row.you{border-color:#0e7a68;background:#eefaf6;font-weight:700}
 .hobby-chip{margin:4px 6px 4px 0}
+.game-card{transition:transform .18s ease, box-shadow .18s ease}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(16,42,36,.18)}
+.suggest-card{transition:transform .18s ease}
+.suggest-card:hover{transform:translateY(-3px)}
+@media (prefers-reduced-motion: reduce){.game-card,.suggest-card{transition:none}.game-card:hover,.suggest-card:hover{transform:none}}

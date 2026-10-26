@@ -121,6 +121,7 @@ async function boot() {
   // ---- Profile: name, demo mode, training modes ----
   $("#profileName").value = localStorage.getItem("ev:profileName") || "";
   $("#demoModeToggle").checked = localStorage.getItem("ev:demoMode") === "1";
+  $("#comfortToggle").checked = localStorage.getItem("ev:comfortMode") === "1";
   const renderModes = () => {
     const chosen = new Set(selectedModeIds());
     $("#modeGrid").innerHTML = core.TRAINING_MODES.map((m) => `<button type="button" class="study-card ${chosen.has(m.modeId) ? "is-on" : ""}" data-mode="${esc(m.modeId)}" aria-pressed="${chosen.has(m.modeId)}"><span class="check">${chosen.has(m.modeId) ? "Training" : "Add"}</span><strong>${esc(m.label)}</strong><span class="areas">${esc(m.blurb)}</span></button>`).join("");
@@ -135,6 +136,7 @@ async function boot() {
   $("#saveProfileBtn").addEventListener("click", async () => {
     localStorage.setItem("ev:profileName", $("#profileName").value.trim());
     localStorage.setItem("ev:demoMode", $("#demoModeToggle").checked ? "1" : "0");
+    localStorage.setItem("ev:comfortMode", $("#comfortToggle").checked ? "1" : "0");
     const areas = [...document.querySelectorAll("[data-area].is-on")].map((b) => b.dataset.area);
     localStorage.setItem("ev:interestAreas", JSON.stringify(areas));
     $("#profileStatus").textContent = "Saved. Modes now steer your recommendations; demo subtitles follow you into Lotería and the Milonga.";
@@ -234,10 +236,10 @@ async function refresh() {
       return `<div class="comp-row"><span>${stageNames[s]}</span><span class="bar"><div style="width:${pct}%"></div></span><span>${n ? `${pct}% · n=${n} · recall ~${Math.round(ret * 100)}%` : "no evidence yet"}</span></div>`;
     }).join("") + (state.dueForReview.length ? `<p><strong>Due before they fade:</strong> ${state.dueForReview.map((d) => `${esc(currentConcepts.find((c) => c.conceptId === d.conceptId)?.terms.en.term || d.conceptId)} (~${Math.round((d.lowestRetention ?? 1) * 100)}%)`).join(" · ")}</p>` : `<p class="hint">Nothing due. New proofs schedule themselves as they age.</p>`);
     try { const streaks = Object.keys(localStorage).filter((k) => k.startsWith("ev:daily:")).map((k) => { try { return { game: k.slice(9), ...JSON.parse(localStorage.getItem(k) || "{}") }; } catch { return null; } }).filter((x) => x && x.streak); if (streaks.length) $("#mirrorStages").innerHTML += `<p><strong>Day streaks:</strong> ${streaks.map((s) => `${esc(s.game)} · ${s.streak} day${s.streak === 1 ? "" : "s"} · best ${s.best}`).join(" · ")}</p>`; } catch {}
-    const games = core.recommendGames({ domain: currentDomain, concepts: currentConcepts, learnerState: state, limit: 3, modes: selectedModes() });
+    const games = core.recommendGames({ domain: currentDomain, concepts: currentConcepts, learnerState: state, limit: 3, modes: selectedModes(), comfort: localStorage.getItem("ev:comfortMode") === "1" });
     const dirs = { "concept-clinch": "../games/concept-clinch/", "shift-consecutive": "../games/shift-consecutive/", "bench-call": "../games/bench-call/", "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "the-table": "../games/the-table/", "repair-shop": "../games/repair-shop/", "vr-lingua-lab": "../games/vr-lingua-lab/", "vocab-craft": "../games/vocab-craft/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/", "loteria-aula": "../games/loteria-aula/", "milonga-sentido": "../games/milonga-sentido/" };
     $("#suggestedGames").innerHTML = games.map((g) => `
-      <article class="suggest-card"><p class="verb-line">${esc(g.verb)} · Stage ${g.gapStage}</p><h3>${esc(g.name)}</h3><p>${esc(g.reason)}</p><a class="btn btn-primary" href="${dirs[g.gameId] || "../games/concept-clinch/"}?domain=${encodeURIComponent(engine.domainId)}&learner=${encodeURIComponent(engine.learnerId)}&engine=${encodeURIComponent(engine.engineUrl)}&lang=${encodeURIComponent($("#pairSelect").value)}">Play for this gap</a></article>`).join("");
+      <article class="suggest-card"><p class="verb-line">${esc(g.verb)} · Stage ${g.gapStage}</p><h3>${esc(g.name)}</h3><p>${esc(g.reason)}${g.pressureNote ? ` <span class="hint">(heads-up: ${esc(g.pressureNote)})</span>` : ""}</p><a class="btn btn-primary" href="${dirs[g.gameId] || "../games/concept-clinch/"}?domain=${encodeURIComponent(engine.domainId)}&learner=${encodeURIComponent(engine.learnerId)}&engine=${encodeURIComponent(engine.engineUrl)}&lang=${encodeURIComponent($("#pairSelect").value)}">Play for this gap</a></article>`).join("");
     try {
       const chosenAreas = new Set(loadJSON("ev:interestAreas", []));
       $("#areaGrid").innerHTML = (currentDomain?.translationAreas || []).map((a) => `<button type="button" class="study-card ${chosenAreas.has(a.areaId) ? "is-on" : ""}" data-area="${esc(a.areaId)}"><span class="check">${chosenAreas.has(a.areaId) ? "Focus" : "Add"}</span><strong>${esc(a.label.en)}</strong><span class="areas">${esc(a.setting)} · risk ${esc(a.riskIfMistranslated)}</span></button>`).join("");

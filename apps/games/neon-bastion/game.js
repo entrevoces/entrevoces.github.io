@@ -78,13 +78,13 @@ function resolveDrone(d) {
   const c = G.current;
   if (d.gold) {
     G.hits++; G.score += 100 + G.wave * 10;
-    burst(d.x, d.y, "#2ee6a8");
+    burst(d.x, d.y, "#2ee6a8"); sndGood();
     $("#feedback").textContent = `Direct hit — “${tgt(c)}” is the true equivalent. The bastion holds.`; $("#feedback").className = "feedback good";
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "neon-bastion", activityType: G.sentenceWave ? "contextual-usage" : "retrieval", ...(G.sentenceWave ? { stage: 5 } : { stage: 6 }), languageDirection: `en->${targetLang}`, correct: true, score: 1, responseSummary: `Bastion wave ${G.wave} shot the true drone` });
     G.drones = []; setTimeout(() => { if (G && !G.over) nextWave(); }, 450);
   } else {
     G.shield--;
-    burst(d.x, d.y, "#ff5d47");
+    burst(d.x, d.y, "#ff5d47"); sndBad();
     $("#feedback").textContent = `Neighbour down — that was “${d.label}”, not “${tgt(c)}”. Shield pays for haste.`; $("#feedback").className = "feedback bad";
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "neon-bastion", activityType: "retrieval", stage: 6, languageDirection: `en->${targetLang}`, correct: false, score: 0, misconceptionTag: c.misconceptions?.[0]?.tag, responseSummary: `Bastion shot neighbour ${d.label}` });
     G.drones = G.drones.filter((x) => x !== d);
@@ -92,6 +92,11 @@ function resolveDrone(d) {
   }
   syncBadge(); hud();
 }
+
+let AC = null;
+function beep(freq, dur = 0.12, type = "sine", gain = 0.08, when = 0) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(gain, AC.currentTime + when); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + when + dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + when); o.stop(AC.currentTime + when + dur); } catch {} }
+function sndGood() { beep(660, 0.1, "sine", 0.07); beep(990, 0.14, "sine", 0.06, 0.07); }
+function sndBad() { beep(180, 0.16, "triangle", 0.05); }
 function burst(x, y, col) { for (let i = 0; i < 14; i++) G.parts.push({ x, y, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 22, col }); }
 function loop() {
   if (!G || G.over) return;

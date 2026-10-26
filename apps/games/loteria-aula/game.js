@@ -54,6 +54,11 @@ function startGame() {
   show("screen-play"); hud(); $("#feedback").textContent = "Boards ready. Caller — ¡corre y se va!";
 }
 function hud() { $("#deckPill").textContent = G ? `Cards left ${Math.max(0, G.deck.length - G.idx - 1)}` : ""; }
+
+let AC = null;
+function beep(freq, dur = 0.12, type = "sine", gain = 0.08, when = 0) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(gain, AC.currentTime + when); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + when + dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + when); o.stop(AC.currentTime + when + dur); } catch {} }
+function sndGood() { beep(660, 0.1, "sine", 0.07); beep(990, 0.14, "sine", 0.06, 0.07); }
+function sndBad() { beep(180, 0.16, "triangle", 0.05); }
 function callNext() {
   if (!G || G.winner) return;
   G.idx++;
@@ -63,7 +68,7 @@ function callNext() {
   $("#feedback").textContent = CRIES[G.idx % CRIES.length];
   $("#callerTerm").textContent = tgt(G.current);
   $("#callerSub").textContent = demoMode ? `English: ${G.current.terms.en.term}` : "";
-  speak(tgt(G.current), targetLang);
+  beep(520, 0.1, "sine", 0.06); beep(780, 0.12, "sine", 0.05, 0.08); speak(tgt(G.current), targetLang);
   hud();
 }
 function mark(btn) {
@@ -74,13 +79,13 @@ function mark(btn) {
   if (c.conceptId === G.current.conceptId) {
     board.marked.add(ci); btn.classList.add("marked"); G.correct++;
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "loteria-aula", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: true, score: 1, responseSummary: `Lotería: heard ${tgt(c)}, marked ${c.terms.en.term} (Tabla ${bi + 1})` });
-    $("#feedback").textContent = `¡Buena! Tabla ${bi + 1} marks “${c.terms.en.term}”.`; $("#feedback").className = "feedback good";
+    sndGood(); $("#feedback").textContent = `¡Buena! Tabla ${bi + 1} marks “${c.terms.en.term}”.`; $("#feedback").className = "feedback good";
     const winKind = checkWin(board);
     if (winKind) { startInterpretation(board, winKind); return; }
   } else {
     G.wrong++; btn.classList.add("wrong"); setTimeout(() => btn.classList.remove("wrong"), 600);
     engine.recordEvidence({ conceptId: G.current.conceptId, areaId: G.current.areaIds[0], gameId: "loteria-aula", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: false, score: 0, responseSummary: `Lotería: marked ${c.terms.en.term} for ${tgt(G.current)}` });
-    $("#feedback").textContent = `Not that one — the call was “${tgt(G.current)}”${demoMode ? ` (${G.current.terms.en.term})` : ""}. Listen again.`; $("#feedback").className = "feedback bad";
+    sndBad(); $("#feedback").textContent = `Not that one — the call was “${tgt(G.current)}”${demoMode ? ` (${G.current.terms.en.term})` : ""}. Listen again.`; $("#feedback").className = "feedback bad";
   }
   syncBadge();
 }

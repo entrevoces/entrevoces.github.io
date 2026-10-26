@@ -46,6 +46,11 @@ async function boot() {
   cv.addEventListener("pointermove", setPointer); cv.addEventListener("pointerdown", setPointer);
 }
 function listen() { if (!G?.current) return; G.heard = (G.heard || 0) + 1; speak(G.phrase && G.current.examples?.[0]?.[targetLang] ? G.current.examples[0][targetLang] : tgt(G.current), targetLang); }
+
+let AC = null;
+function beep(freq, dur = 0.12, type = "sine", gain = 0.08, when = 0) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(gain, AC.currentTime + when); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + when + dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + when); o.stop(AC.currentTime + when + dur); } catch {} }
+function sndGood() { beep(660, 0.1, "sine", 0.07); beep(990, 0.14, "sine", 0.06, 0.07); }
+function sndBad() { beep(180, 0.16, "triangle", 0.05); }
 function startGame() {
   G = { sub: { x: 480, y: 300, vx: 0, vy: 0, face: 1 }, melons: [], bubbles: [], oxygen: 100, harvest: 0, stings: 0, current: null, over: false, t: 0, heard: 0 };
   show("screen-play"); nextMelon(); loop();
@@ -65,13 +70,13 @@ function resolveMelon(m) {
   const c = G.current;
   if (m.gold) {
     G.harvest++; G.oxygen = Math.min(100, G.oxygen + 22);
-    for (let i = 0; i < 12; i++) G.bubbles.push({ x: m.x, y: m.y, r: 2 + Math.random() * 4, vy: -1 - Math.random() * 1.6, life: 50 });
+    sndGood(); for (let i = 0; i < 12; i++) G.bubbles.push({ x: m.x, y: m.y, r: 2 + Math.random() * 4, vy: -1 - Math.random() * 1.6, life: 50 });
     $("#feedback").textContent = `Ripe. “${tgt(c)}” is “${c.terms.en.term}” — Meloncita (your sub) does a small happy loop.`; $("#feedback").className = "feedback good";
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "melon-reef", activityType: G.phrase ? "contextual-usage" : "terminology", ...(G.phrase ? { stage: 5 } : { stage: 1 }), languageDirection: `${targetLang}->en`, correct: true, score: G.heard > 1 ? 0.8 : 1, assistance: G.heard > 1 ? ["relisten"] : [], responseSummary: `Reef heard ${tgt(c)} and harvested ${c.terms.en.term}` });
     if (G.harvest >= 8) { endGame(); return; }
     G.melons = []; setTimeout(() => { if (G && !G.over) { nextMelon(); listen(); } }, 500);
   } else {
-    G.stings++; G.oxygen -= 18;
+    G.stings++; G.oxygen -= 18; sndBad();
     $("#feedback").textContent = `Sting — that melon was “${m.label}”. The reef keeps what listeners miss.`; $("#feedback").className = "feedback bad";
     engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "melon-reef", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: false, score: 0, responseSummary: `Reef mistook ${tgt(c)} for ${m.label}` });
     m.hit = true; G.melons = G.melons.filter((x) => x !== m);
