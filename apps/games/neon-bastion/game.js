@@ -8,7 +8,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const cv = $("#game"), ctx = cv.getContext("2d");
 const W = 960, H = 540;
 let engine, concepts = [], targetLang = "es";
-let G = null, raf = null, keys = {};
+let G = null, momentConceptId = null, raf = null, keys = {};
 function hubHref() { const p = new URLSearchParams(location.search); return `../../hub/?domain=${encodeURIComponent(engine?.domainId || p.get("domain") || "oregon-medical")}&learner=${encodeURIComponent(engine?.learnerId || p.get("learner") || "")}&engine=${encodeURIComponent(engine?.engineUrl || p.get("engine") || "")}`; }
 function show(id) { if (raf) cancelAnimationFrame(raf); raf = null; document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("is-active", s.id === id)); }
 function tgt(c) { return c.terms[targetLang]?.term || c.terms.es?.term || c.terms.en.term; }
@@ -30,6 +30,11 @@ async function boot() {
   await engine.init();
   concepts = await engine.listConcepts(engine.domainId);
   if (!concepts.length) concepts = fb.filter((c) => c.domainId === engine.domainId);
+
+  // Your moment: the engine's recommendation for THIS learner, right now,
+  // opens the session — depth of system in service of depth of learning.
+  try { const areas = JSON.parse(localStorage.getItem("ev:interestAreas") || "[]"); if (areas.length) { const f = concepts.filter((c) => c.areaIds.some((a) => areas.includes(a))); if (f.length >= 4) concepts = f; } } catch {}
+  try { const nx = await engine.getNext(engine.domainId, { modeId: (JSON.parse(localStorage.getItem("ev:modes") || "[]")[0] || null) }); if (nx?.conceptId && concepts.some((c) => c.conceptId === nx.conceptId)) { momentConceptId = nx.conceptId; const mc = concepts.find((c) => c.conceptId === nx.conceptId); const el = document.querySelector("#titleContext"); if (el && mc) el.textContent += ` Your moment: “${mc.terms.en.term}” (Stage ${nx.stage}) opens this session.`; } } catch {}
   syncBadge();
   const dom = await engine.getDomain(engine.domainId);
   $("#titleContext").textContent = `${dom?.label.en || engine.domainId} · ${concepts.length} words are under attack · English → ${targetLang === "zh" ? "中文" : "Español"}.`;
@@ -52,7 +57,7 @@ function startGame() {
 function hud() { $("#hudScore").textContent = `Score ${G.score}`; $("#hudShield").textContent = `Shield ${"●".repeat(Math.max(0, G.shield))}${"○".repeat(Math.max(0, 3 - G.shield))}`; $("#hudWave").textContent = `Wave ${G.wave}`; if (!G.current) { $("#hudPrompt").textContent = ""; return; } const ex = G.current.examples?.[0]?.en || ""; $("#hudPrompt").textContent = G.sentenceWave && ex ? `In context: “${ex.replace(G.current.terms.en.term, "_____")}” → blast its equivalent` : `Target: ${G.current.terms.en.term} → ?`; }
 function nextWave() {
   G.wave++;
-  G.current = concepts[Math.floor(Math.random() * concepts.length)];
+  G.current = (G.wave === 1 && momentConceptId && concepts.find((c) => c.conceptId === momentConceptId)) || concepts[Math.floor(Math.random() * concepts.length)];
   G.sentenceWave = G.wave % 3 === 0;
   const wrongs = shuffle(concepts.filter((c) => c.conceptId !== G.current.conceptId)).slice(0, 3);
   const defs = shuffle([{ c: G.current, gold: true }, ...wrongs.map((c) => ({ c, gold: false }))]);

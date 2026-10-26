@@ -9,7 +9,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const cv = $("#game"), ctx = cv.getContext("2d");
 const W = 960, H = 540;
 let engine, concepts = [], targetLang = "es";
-let G = null, raf = null, keys = {}, pointer = null;
+let G = null, momentConceptId = null, raf = null, keys = {}, pointer = null;
 function hubHref() { const p = new URLSearchParams(location.search); return `../../hub/?domain=${encodeURIComponent(engine?.domainId || p.get("domain") || "oregon-medical")}&learner=${encodeURIComponent(engine?.learnerId || p.get("learner") || "")}&engine=${encodeURIComponent(engine?.engineUrl || p.get("engine") || "")}`; }
 function show(id) { if (raf) cancelAnimationFrame(raf); raf = null; document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("is-active", s.id === id)); }
 function tgt(c) { return c.terms[targetLang]?.term || c.terms.es?.term || c.terms.en.term; }
@@ -28,6 +28,11 @@ async function boot() {
   await engine.init();
   concepts = await engine.listConcepts(engine.domainId);
   if (!concepts.length) concepts = fb.filter((c) => c.domainId === engine.domainId);
+
+  // Your moment: the engine's recommendation for THIS learner, right now,
+  // opens the session — depth of system in service of depth of learning.
+  try { const areas = JSON.parse(localStorage.getItem("ev:interestAreas") || "[]"); if (areas.length) { const f = concepts.filter((c) => c.areaIds.some((a) => areas.includes(a))); if (f.length >= 4) concepts = f; } } catch {}
+  try { const nx = await engine.getNext(engine.domainId, { modeId: (JSON.parse(localStorage.getItem("ev:modes") || "[]")[0] || null) }); if (nx?.conceptId && concepts.some((c) => c.conceptId === nx.conceptId)) { momentConceptId = nx.conceptId; const mc = concepts.find((c) => c.conceptId === nx.conceptId); const el = document.querySelector("#titleContext"); if (el && mc) el.textContent += ` Your moment: “${mc.terms.en.term}” (Stage ${nx.stage}) opens this session.`; } } catch {}
   syncBadge();
   const dom = await engine.getDomain(engine.domainId);
   $("#titleContext").textContent = `${dom?.label.en || engine.domainId} · the reef speaks ${targetLang === "zh" ? "中文" : "Español"} · you harvest in English · 8 ripe melons surface you a winner.`;
@@ -40,7 +45,7 @@ async function boot() {
   const setPointer = (e) => { const r = cv.getBoundingClientRect(); pointer = { x: (e.clientX - r.left) * (W / r.width), y: (e.clientY - r.top) * (H / r.height) }; };
   cv.addEventListener("pointermove", setPointer); cv.addEventListener("pointerdown", setPointer);
 }
-function listen() { if (G?.current) speak(tgt(G.current), targetLang); }
+function listen() { if (!G?.current) return; G.heard = (G.heard || 0) + 1; speak(G.phrase && G.current.examples?.[0]?.[targetLang] ? G.current.examples[0][targetLang] : tgt(G.current), targetLang); }
 function startGame() {
   G = { sub: { x: 480, y: 300, vx: 0, vy: 0, face: 1 }, melons: [], bubbles: [], oxygen: 100, harvest: 0, stings: 0, current: null, over: false, t: 0, heard: 0 };
   show("screen-play"); nextMelon(); loop();
@@ -48,11 +53,13 @@ function startGame() {
 }
 function hud() { $("#hudOxygen").textContent = `Oxygen ${Math.max(0, Math.round(G.oxygen))}%`; $("#hudHarvest").textContent = `Harvested ${G.harvest} / 8`; $("#hudPrompt").textContent = G.current ? `Listen… then find the English melon` : ""; }
 function nextMelon() {
-  G.current = concepts[Math.floor(Math.random() * concepts.length)];
+  G.current = (G.harvest === 0 && momentConceptId && concepts.find((c) => c.conceptId === momentConceptId)) || concepts[Math.floor(Math.random() * concepts.length)];
   const wrongs = shuffle(concepts.filter((c) => c.conceptId !== G.current.conceptId)).slice(0, 3);
   const defs = shuffle([{ c: G.current, gold: true }, ...wrongs.map((c) => ({ c, gold: false }))]);
   G.melons = defs.map((d, i) => ({ x: 130 + i * 235 + Math.random() * 50, y: 130 + (i % 2) * 190 + Math.random() * 50, r: 44, label: d.c.terms.en.term, gold: d.gold, drift: Math.random() * 6, hit: false }));
+  G.phrase = G.harvest % 3 === 2; // every third dive is a whole-sentence phrase dive (Stage 5)
   G.heard = 0; hud();
+  $("#hudPrompt").textContent = G.phrase ? "Phrase dive — hear the whole sentence, harvest its key word" : "Listen… then find the English melon";
 }
 function resolveMelon(m) {
   const c = G.current;
@@ -60,7 +67,7 @@ function resolveMelon(m) {
     G.harvest++; G.oxygen = Math.min(100, G.oxygen + 22);
     for (let i = 0; i < 12; i++) G.bubbles.push({ x: m.x, y: m.y, r: 2 + Math.random() * 4, vy: -1 - Math.random() * 1.6, life: 50 });
     $("#feedback").textContent = `Ripe. “${tgt(c)}” is “${c.terms.en.term}” — Meloncita (your sub) does a small happy loop.`; $("#feedback").className = "feedback good";
-    engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "melon-reef", activityType: "terminology", stage: 1, languageDirection: `${targetLang}->en`, correct: true, score: G.heard > 1 ? 0.8 : 1, assistance: G.heard > 1 ? ["relisten"] : [], responseSummary: `Reef heard ${tgt(c)} and harvested ${c.terms.en.term}` });
+    engine.recordEvidence({ conceptId: c.conceptId, areaId: c.areaIds[0], gameId: "melon-reef", activityType: G.phrase ? "contextual-usage" : "terminology", ...(G.phrase ? { stage: 5 } : { stage: 1 }), languageDirection: `${targetLang}->en`, correct: true, score: G.heard > 1 ? 0.8 : 1, assistance: G.heard > 1 ? ["relisten"] : [], responseSummary: `Reef heard ${tgt(c)} and harvested ${c.terms.en.term}` });
     if (G.harvest >= 8) { endGame(); return; }
     G.melons = []; setTimeout(() => { if (G && !G.over) { nextMelon(); listen(); } }, 500);
   } else {

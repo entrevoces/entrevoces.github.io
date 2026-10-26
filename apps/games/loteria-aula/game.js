@@ -6,7 +6,7 @@ import { EngineClient } from "../../../packages/engine-client/engine-client.js";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, concepts = [], targetLang = "es", demoMode = false;
-let G = null;
+let G = null, momentConceptId = null;
 function hubHref() { const p = new URLSearchParams(location.search); return `../../hub/?domain=${encodeURIComponent(engine?.domainId || p.get("domain") || "oregon-medical")}&learner=${encodeURIComponent(engine?.learnerId || p.get("learner") || "")}&engine=${encodeURIComponent(engine?.engineUrl || p.get("engine") || "")}`; }
 function show(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("is-active", s.id === id)); }
 function tgt(c) { return c.terms[targetLang]?.term || c.terms.es?.term || c.terms.en.term; }
@@ -26,6 +26,11 @@ async function boot() {
   await engine.init();
   concepts = await engine.listConcepts(engine.domainId);
   if (!concepts.length) concepts = fb.filter((c) => c.domainId === engine.domainId);
+
+  // Your moment: the engine's recommendation for THIS learner, right now,
+  // opens the session — depth of system in service of depth of learning.
+  try { const areas = JSON.parse(localStorage.getItem("ev:interestAreas") || "[]"); if (areas.length) { const f = concepts.filter((c) => c.areaIds.some((a) => areas.includes(a))); if (f.length >= 4) concepts = f; } } catch {}
+  try { const nx = await engine.getNext(engine.domainId, { modeId: (JSON.parse(localStorage.getItem("ev:modes") || "[]")[0] || null) }); if (nx?.conceptId && concepts.some((c) => c.conceptId === nx.conceptId)) { momentConceptId = nx.conceptId; const mc = concepts.find((c) => c.conceptId === nx.conceptId); const el = document.querySelector("#titleContext"); if (el && mc) el.textContent += ` Your moment: “${mc.terms.en.term}” (Stage ${nx.stage}) opens this session.`; } } catch {}
   syncBadge();
   const dom = await engine.getDomain(engine.domainId);
   $("#titleContext").textContent = `${dom?.label.en || engine.domainId} · ${concepts.length} cards in the deck · caller speaks ${targetLang === "zh" ? "中文" : "Español"}, boards answer in English.${demoMode ? " Demo mode: English subtitles under every call." : ""}`;
@@ -42,7 +47,8 @@ function startGame() {
   const BOARD_NAMES = ["La Valiente", "El Soñador", "La Abuela Sabia", "El Rayo"];
   const boards = Array.from({ length: n }, (_, b) => ({ name: `Tabla ${b + 1} · ${BOARD_NAMES[b % BOARD_NAMES.length]}`, cells: shuffle(pool).slice(0, 16), marked: new Set(), won: false }));
   // Guarantee every board shares the deck pool; deck is all concepts shuffled.
-  G = { boards, deck: shuffle(concepts), idx: -1, current: null, correct: 0, wrong: 0, winner: null };
+  const momentC = momentConceptId && concepts.find((c) => c.conceptId === momentConceptId);
+  G = { boards, deck: momentC ? [momentC, ...shuffle(concepts.filter((c) => c.conceptId !== momentC.conceptId))] : shuffle(concepts), idx: -1, current: null, correct: 0, wrong: 0, winner: null };
   $("#boards").innerHTML = boards.map((b, bi) => `<section class="board" id="board-${bi}"><h3>${esc(b.name)}</h3><div class="grid">${b.cells.map((c, ci) => `<button type="button" class="cell" data-board="${bi}" data-cell="${ci}">${esc(c.terms.en.term)}<small>${esc(c.terms.en.term === tgt(c) ? "" : "")}</small></button>`).join("")}</div></section>`).join("");
   document.querySelectorAll("[data-board]").forEach((btn) => btn.addEventListener("click", () => mark(btn)));
   show("screen-play"); hud(); $("#feedback").textContent = "Boards ready. Caller — ¡corre y se va!";

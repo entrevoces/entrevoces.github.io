@@ -6,7 +6,7 @@ import { EngineClient } from "../../../packages/engine-client/engine-client.js";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, concepts = [], targetLang = "es";
-let game = null;
+let game = null, momentConceptId = null;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 function hubHref() { const p = new URLSearchParams(location.search); return `../../hub/?domain=${encodeURIComponent(engine?.domainId || p.get("domain") || "oregon-medical")}&learner=${encodeURIComponent(engine?.learnerId || p.get("learner") || "")}&engine=${encodeURIComponent(engine?.engineUrl || p.get("engine") || "")}`; }
 function show(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("is-active", s.id === id)); }
@@ -26,6 +26,11 @@ async function boot() {
   await engine.init();
   concepts = await engine.listConcepts(engine.domainId);
   if (!concepts.length) concepts = fb.filter((c) => c.domainId === engine.domainId);
+
+  // Your moment: the engine's recommendation for THIS learner, right now,
+  // opens the session — depth of system in service of depth of learning.
+  try { const areas = JSON.parse(localStorage.getItem("ev:interestAreas") || "[]"); if (areas.length) { const f = concepts.filter((c) => c.areaIds.some((a) => areas.includes(a))); if (f.length >= 4) concepts = f; } } catch {}
+  try { const nx = await engine.getNext(engine.domainId, { modeId: (JSON.parse(localStorage.getItem("ev:modes") || "[]")[0] || null) }); if (nx?.conceptId && concepts.some((c) => c.conceptId === nx.conceptId)) { momentConceptId = nx.conceptId; const mc = concepts.find((c) => c.conceptId === nx.conceptId); const el = document.querySelector("#titleContext"); if (el && mc) el.textContent += ` Your moment: “${mc.terms.en.term}” (Stage ${nx.stage}) opens this session.`; } } catch {}
   syncBadge();
   const dom = await engine.getDomain(engine.domainId);
   $("#titleContext").textContent = `${dom?.label.en || engine.domainId} · stones speak English → ${targetLang === "zh" ? "中文" : "Español"} · 3 petals (lives) per walk.`;
@@ -36,7 +41,8 @@ async function boot() {
 }
 
 function startGame() {
-  const pool = shuffle(concepts).slice(0, 10);
+  const momentC = momentConceptId && concepts.find((c) => c.conceptId === momentConceptId);
+  const pool = momentC ? [momentC, ...shuffle(concepts.filter((c) => c.conceptId !== momentC.conceptId)).slice(0, 9)] : shuffle(concepts).slice(0, 10);
   game = { pool, sequence: [], input: [], round: 0, petals: 3, perfect: 0, accepting: false, replayUsed: false, reverse: false };
   show("screen-play"); nextRound();
 }

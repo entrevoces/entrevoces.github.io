@@ -266,7 +266,8 @@ async function refresh() {
     } catch {}
     try {
       const recs = core.recommendResources({ learnerState: state, concepts: currentConcepts, modes: selectedModeIds(), limit: 3 });
-      $("#resourceBox").innerHTML = recs.map((r) => `<div class="lb-row"><span><strong>${esc(r.title)}</strong> — ${esc(r.by)} <span class="hint">(${esc(r.kind)})</span></span></div><p class="hint">${esc(r.reason)}</p>`).join("");
+      const topGame = games[0];
+      $("#resourceBox").innerHTML = (topGame ? `<div class="lb-row you"><span><strong>Play this next:</strong> ${esc(topGame.name)} (${esc(topGame.verb)})</span><a class="btn btn-primary" href="${gameUrl(topGame.gameId)}">Play</a></div><p class="hint">${esc(topGame.reason)} A game belongs on this shelf next to the books — it is how the next hour actually happens.</p>` : "") + recs.map((r) => `<div class="lb-row"><span><strong>${esc(r.title)}</strong> — ${esc(r.by)} <span class="hint">(${esc(r.kind)})</span></span></div><p class="hint">${esc(r.reason)}</p>`).join("");
     } catch {}
   } catch { $("#mirrorStages").innerHTML = `<p class="hint">Mirror warms up after your first proof in any game.</p>`; }
 }

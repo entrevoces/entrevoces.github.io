@@ -59,7 +59,9 @@ export function generateItem({ concept, domain, area = null, stage = 2, targetLa
     prompt = `Say it as you would to the patient/client: explain "${en.term}" (${tgt?.term || ""}) in plain, appropriate language.`;
   } else {
     prompt = example?.en || `Interpret: "We need to discuss ${en.term} before we proceed."`;
-    expected = acceptable;
+    // Interpretation is judged on the carried sentence, not the bare term:
+    // the faithful example rendering leads the answer set.
+    expected = example?.[targetLang] ? [example[targetLang], ...acceptable] : acceptable;
   }
 
   return {

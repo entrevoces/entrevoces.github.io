@@ -1,9 +1,22 @@
 {
   "gameId": "melon-reef",
   "label": "Melon Reef",
-  "domainIds": ["oregon-medical", "oregon-legal", "ontario-real-estate", "oregon-cultivation", "california-tax", "ai-technology"],
-  "competences": ["listening", "professional-terminology"],
-  "stages": [1, 5],
+  "domainIds": [
+    "oregon-medical",
+    "oregon-legal",
+    "ontario-real-estate",
+    "oregon-cultivation",
+    "california-tax",
+    "ai-technology"
+  ],
+  "competences": [
+    "listening",
+    "professional-terminology"
+  ],
+  "stages": [
+    1,
+    5
+  ],
   "engineUrl": "http://127.0.0.1:8787",
   "offlineSeed": "concepts-subset.json",
   "version": 1

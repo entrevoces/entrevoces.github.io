@@ -17,11 +17,15 @@ function showError(msg) { const o = $("#errOverlay"); o.hidden = false; o.textCo
 function trials() {
   // ES→EN for ai-technology (terms.es is the prompt); other worlds run EN→target.
   const isAI = engine.domainId === "ai-technology";
-  return shuffle(concepts).slice(0, 6).map((c) => {
-    const prompt = isAI ? (c.terms.es?.term || c.terms.en.term) : c.terms.en.term;
+  return shuffle(concepts).slice(0, 8).map((c, idx) => {
     const answer = isAI ? c.terms.en.term : (c.terms[targetLang]?.term || c.terms.es.term);
     const pool = concepts.filter((x) => x.conceptId !== c.conceptId).map((x) => isAI ? x.terms.en.term : (x.terms[targetLang]?.term || x.terms.es.term));
-    return { concept: c, prompt, answer, options: shuffle([answer, ...shuffle(pool).slice(0, 3)]), isAI };
+    // Every second trial is a distinction trial: the crystal shows what the
+    // concept MEANS; the shard must be the term that owns that meaning among
+    // near neighbours (Stage 4), not a memorised gloss (Stage 2).
+    const distinguish = idx % 2 === 1;
+    const prompt = distinguish ? c.definition.en : (isAI ? (c.terms.es?.term || c.terms.en.term) : c.terms.en.term);
+    return { concept: c, prompt, answer, options: shuffle([answer, ...shuffle(pool).slice(0, 3)]), isAI, kind: distinguish ? "distinguish" : "carry" };
   });
 }
 
@@ -244,7 +248,7 @@ async function judge(ok) {
   if (ok) { lab.score += 100; lab.correct++; } else { lab.hearts--; }
   pulse(ok ? 0.8 : 0.3, ok ? 90 : 140);
   if (three) three.gem.material.emissive.set(ok ? 0x1b9aaa : 0xa63a2e);
-  engine.recordEvidence({ conceptId: t.concept.conceptId, areaId: t.concept.areaIds[0], gameId: "vr-lingua-lab", activityType: "bilingual", stage: 2, languageDirection: t.isAI ? "es->en" : `en->${targetLang}`, correct: ok, score: ok ? 1 : 0.1, responseSummary: `Lingua Lab: ${t.prompt} -> ${t.answer}` });
+  engine.recordEvidence({ conceptId: t.concept.conceptId, areaId: t.concept.areaIds[0], gameId: "vr-lingua-lab", activityType: t.kind === "distinguish" ? "conceptual" : "bilingual", ...(t.kind === "distinguish" ? { stage: 4 } : { stage: 2 }), languageDirection: t.isAI ? "es->en" : `en->${targetLang}`, correct: ok, score: ok ? 1 : 0.1, responseSummary: `Lingua Lab: ${t.prompt} -> ${t.answer}` });
   syncBadge(); hud();
   const fb = $("#fbFeedback"); if (fb) { fb.className = `feedback ${ok ? "good" : "bad"}`; fb.textContent = ok ? "Carried across. The crystal steadies." : `Cracked. “${t.prompt}” is “${t.answer}” — ${t.concept.distinctions?.[0]?.difference || t.concept.definition.en}`; }
   await wait(1500);
