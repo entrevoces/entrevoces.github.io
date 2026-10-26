@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lingua Lab VR — Step inside the translation · ENTRE VOCES</title>
+<meta name="description" content="Immersive WebVR lab: Spanish AI-technology terms float around you. Carry each one into English with your gaze.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="errOverlay" hidden></div>
+<header class="hud-top">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div><h1>Lingua Lab VR</h1><p class="tagline">Step inside. Spanish floats. English must be earned in space.</p></div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+<div id="hud" class="hud" hidden>
+  <span id="hudRound" class="pill pill-strong"></span><span id="hudScore" class="pill">Score 0</span><span id="hudHearts" class="pill"></span>
+  <span id="hudPrompt" class="pill prompt-pill"></span>
+</div>
+<div id="reticle" hidden></div>
+<main id="stage">
+  <canvas id="gl"></canvas>
+  <section id="lobby" class="lobby panel">
+    <p class="kicker">Immersive · AI technology ES→EN (works for any world)</p>
+    <h2>Put the lab on. The terms are already in the air.</h2>
+    <p>A Spanish term burns in the center crystal. Four English shards orbit the pedestals. <strong>Gaze (or click/tap) the true shard</strong> to carry it across. Wrong shards crack the crystal's light. Headset if you have one — mouse, touch, and gaze all work without.</p>
+    <p id="titleContext" class="hint">Warming the lab lights…</p>
+    <div class="lobby-actions">
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Enter the lab</button>
+      <button id="vrBtn" class="btn btn-large" type="button">Enter VR</button>
+    </div>
+    <p class="hint">Desktop: drag to look, click a shard. VR: look at a shard until the ring closes. Phone: tap shards. No headset required, ever.</p>
+  </section>
+</main>
+<section id="fallback2d" class="panel" hidden>
+  <h2>Lab (flat mode)</h2>
+  <p class="hint">3D could not start here, so the same trial runs flat — same terms, same evidence.</p>
+  <p id="fbPrompt" class="prompt"></p>
+  <div id="fbChoices" class="choices"></div>
+  <p id="fbFeedback" class="feedback" role="status" aria-live="polite"></p>
+</section>
+<section id="endPanel" class="panel end-panel" hidden>
+  <p class="kicker">Lab report</p><h2 id="endTitle">Crystal dims.</h2>
+  <div id="endStats"></div><div id="endExplain" class="explain"></div>
+  <div class="lobby-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">Re-enter</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
+</section>
+<footer><p>Lingua Lab VR · ENTRE VOCES · Built with three.js (WebXR where available). Meaning has depth here — literally.</p></footer>
+<script type="module" src="game.js"></script>
+</body>
+</html>

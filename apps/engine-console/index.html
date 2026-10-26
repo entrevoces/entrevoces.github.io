@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENTRE VOCES — Engine Console</title>
+<meta name="description" content="Specify domains and translation areas for the ENTRE VOCES Progression Engine. Oregon Legal and Medical are the seed instance — add any jurisdiction or profession by configuration.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">EV</div>
+    <div>
+      <h1>ENTRE VOCES <span>Engine Console</span></h1>
+      <p>The engine is the product. Specify domains &amp; translation areas here — games pick them up without redeploying.</p>
+    </div>
+  </div>
+  <div class="conn" role="group" aria-label="Engine connection">
+    <label>Engine URL <input id="engineUrl" type="url" value="http://127.0.0.1:8787" autocomplete="off" spellcheck="false"></label>
+    <label>Author token <input id="authorToken" type="password" placeholder="dev-author-token" autocomplete="off"></label>
+    <button id="connectBtn" class="btn btn-primary" type="button">Connect</button>
+    <span id="healthPill" class="pill pill-off">Not connected</span>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Console sections">
+  <button class="tab is-active" data-tab="studio" type="button">Domain Studio</button>
+  <button class="tab" data-tab="knowledge" type="button">Knowledge Browser</button>
+  <button class="tab" data-tab="learners" type="button">Learner Inspector</button>
+  <button class="tab" data-tab="system" type="button">System</button>
+  <span id="modeBadge" class="pill pill-local">Local demo data</span>
+</nav>
+
+<main>
+  <!-- DOMAIN STUDIO -->
+  <section id="tab-studio" class="panel-view is-active">
+    <div class="studio-layout">
+      <aside class="registry" aria-label="Domain registry">
+        <div class="registry-head">
+          <h2>Domain registry</h2>
+          <button id="newDomainBtn" class="btn btn-small" type="button">+ New domain</button>
+        </div>
+        <p class="hint">One domain = one professional world. Oregon Legal &amp; Medical are the seed instance — fork or replace them.</p>
+        <div id="domainList" class="domain-list"></div>
+        <div class="registry-actions">
+          <button id="exportDomainBtn" class="btn btn-small" type="button">Export JSON</button>
+          <label class="btn btn-small file-btn">Import JSON <input id="importDomainInput" type="file" accept="application/json" hidden></label>
+        </div>
+        <div class="gate-box">
+          <strong>Try the engine gate (§3.4):</strong> create a toy domain (e.g. Oregon — Education, 2 areas), Activate it, then open a game — it appears with no code change and no game redeploy.
+        </div>
+      </aside>
+
+      <form id="domainForm" class="editor" novalidate>
+        <div class="editor-head">
+          <h2 id="editorTitle">Domain editor</h2>
+          <span id="versionPill" class="pill">v—</span>
+          <span id="saveStatus" class="save-status" role="status" aria-live="polite"></span>
+        </div>
+
+        <fieldset>
+          <legend>Identity</legend>
+          <div class="grid2">
+            <label>Domain ID (slug, immutable) <input name="domainId" required pattern="[a-z0-9][a-z0-9-]{2,48}" placeholder="oregon-medical"></label>
+            <label>Profession
+              <select name="profession">
+                <option value="medical">Medical</option>
+                <option value="legal">Legal</option>
+                <option value="education">Education</option>
+                <option value="social-services">Social services</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>Label (English) <input name="labelEn" required placeholder="Oregon — Medical Interpreting"></label>
+            <label>Status
+              <select name="status"><option value="draft">Draft (Console only)</option><option value="active">Active (served to games)</option><option value="archived">Archived</option></select>
+            </label>
+            <label>Country <input name="country" required value="US"></label>
+            <label>Region <input name="region" required value="Oregon"></label>
+            <label>Region code <input name="regionCode" value="US-OR"></label>
+            <label>Institutions (comma-separated) <input name="institutions" placeholder="Oregon Health Authority"></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Languages &amp; modalities</legend>
+          <div id="pairList"></div>
+          <button id="addPairBtn" class="btn btn-small" type="button">+ Add language pair</button>
+          <div class="checks" id="modalityChecks">
+            <span class="checks-label">Modalities:</span>
+            <label><input type="checkbox" value="consecutive"> Consecutive</label>
+            <label><input type="checkbox" value="simultaneous"> Simultaneous</label>
+            <label><input type="checkbox" value="sight"> Sight</label>
+            <label><input type="checkbox" value="remote"> Remote</label>
+          </div>
+          <p class="hint">Games must honor these pairs and directions. Adding a pair here is sufficient — no game change needed.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Translation areas — where interpreting happens</legend>
+          <p class="hint">An area is a situation family (a clinic phase, a court phase), not a topic tag. Concepts, scenarios, coverage, and risk all hang off areas.</p>
+          <div id="areaList"></div>
+          <button id="addAreaBtn" class="btn btn-small" type="button">+ Add translation area</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Competency weights (what matters most here)</legend>
+          <div id="weightList" class="weights"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Authoritative sources</legend>
+          <div id="sourceChecks" class="checks checks-col"></div>
+          <p class="hint">Every concept must trace to a registered source. Inferred content is flagged and never presented as authoritative.</p>
+        </fieldset>
+
+        <div id="formErrors" class="errors" role="alert" hidden></div>
+        <div class="editor-actions">
+          <button id="saveDomainBtn" class="btn btn-primary" type="submit">Save domain</button>
+          <button id="activateBtn" class="btn" type="button">Activate</button>
+          <button id="archiveBtn" class="btn btn-ghost" type="button">Archive</button>
+          <button id="previewBtn" class="btn" type="button">Preview as game sees it</button>
+        </div>
+        <div id="previewBox" class="preview" hidden></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE -->
+  <section id="tab-knowledge" class="panel-view">
+    <div class="toolbar">
+      <label>Domain <select id="kbDomain"></select></label>
+      <label>Area <select id="kbArea"><option value="">All areas</option></select></label>
+      <label>Language <select id="kbLang"><option value="es">Español</option><option value="zh">中文</option></select></label>
+      <span id="kbCount" class="pill"></span>
+    </div>
+    <div class="kb-layout">
+      <div id="conceptList" class="concept-list"></div>
+      <article id="conceptDetail" class="concept-detail"><p class="hint">Select a concept to see terms, distinctions, misconceptions, and provenance.</p></article>
+    </div>
+  </section>
+
+  <!-- LEARNERS -->
+  <section id="tab-learners" class="panel-view">
+    <div class="toolbar">
+      <label>Learner <select id="learnerSelect"></select></label>
+      <label>Domain <select id="learnerDomain"></select></label>
+      <button id="refreshLearnerBtn" class="btn btn-small" type="button">Refresh</button>
+      <button id="exportLearnerBtn" class="btn btn-small" type="button">Export evidence JSON</button>
+      <button id="seedDemoBtn" class="btn btn-small" type="button">Seed demo evidence</button>
+      <span class="hint">Same record across every game — that is the point of the engine.</span>
+    </div>
+    <div id="learnerEmpty" class="empty">No evidence yet for this learner + domain. Play a game (hub → Concept Clinch), or seed demo evidence to inspect the model.</div>
+    <div id="learnerBody" hidden>
+      <div class="cards-row">
+        <article class="stat-card"><h3>Next recommendation (engine)</h3><div id="nextCard"></div></article>
+        <article class="stat-card"><h3>Coverage by translation area</h3><div id="coverageList"></div></article>
+      </div>
+      <h3>Competence vector <span class="hint">— always with evidence counts; never a proficiency verdict</span></h3>
+      <div id="competenceList" class="competences"></div>
+      <h3>Mastery stages per concept <span class="hint">— 1 Recognize · 2 Equivalent · 3 Understand · 4 Distinguish · 5 Apply · 6 Retrieve · 7 Speak · 8 Interpret</span></h3>
+      <div id="stageTableWrap" class="table-wrap"></div>
+      <h3>Evidence log</h3>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>When</th><th>Game</th><th>Concept</th><th>Stage</th><th>Result</th><th>Assistance</th><th>Note</th></tr></thead><tbody id="evidenceBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- SYSTEM -->
+  <section id="tab-system" class="panel-view">
+    <div class="cards-row">
+      <article class="stat-card"><h3>Engine health</h3><pre id="healthBox" class="mono">Not connected.</pre></article>
+      <article class="stat-card"><h3>Run the engine</h3>
+        <p>Local (zero dependencies):</p>
+        <pre class="mono">cd services/progression-engine
+AUTHOR_TOKEN=dev-author-token PORT=8787 node server.js</pre>
+        <p>Then set Engine URL to <code>http://127.0.0.1:8787</code> above and Connect. Production port: Cloudflare Workers + D1 (see <code>services/progression-engine/wrangler.toml</code>). Games never hold this token.</p>
+        <button id="reseedBtn" class="btn btn-small" type="button">Reseed Oregon knowledge (author)</button>
+        <button id="resetBtn" class="btn btn-small btn-danger" type="button">Reset demo data (author)</button>
+      </article>
+    </div>
+    <article class="stat-card wide">
+      <h3>Deployment topology (identical game builds; only the engine URL differs)</h3>
+      <pre class="mono">Local demo        Hub :8000 ┐
+                  Games:8001/2 ├─► CPE :8787 (Node)      Console :8003
+Judging           GitHub Pages: hub + Concept Clinch
+                  Cloudflare Pages: Shift: Consecutive ─► Cloudflare Workers CPE (D1)
+New domain        Console ─► CPE (activate DomainConfig) ─► games pick it up on next load</pre>
+      <p>Each game folder under <code>apps/games/</code> is a complete static site (GitHub Pages / Cloudflare Pages). With the CPE stopped, games show a local-only badge and keep playing; evidence syncs on reconnect with no duplicates.</p>
+    </article>
+  </section>
+</main>
+
+<footer>
+  <p>ENTRE VOCES Progression Engine · Oregon Legal + Medical are the seed instance, not the limit. <a href="../hub/">Open hub</a> · <a href="../../spec.md">Spec</a></p>
+</footer>
+<template id="areaTpl">
+  <div class="area-card">
+    <div class="grid2">
+      <label>Area ID (slug) <input data-f="areaId" placeholder="informed-consent"></label>
+      <label>Label (English) <input data-f="labelEn" placeholder="Informed consent discussion"></label>
+      <label>Setting <input data-f="setting" placeholder="Pre-procedure consent discussion"></label>
+      <label>Risk if mistranslated
+        <select data-f="risk"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select>
+      </label>
+      <label>Participants (comma-separated) <input data-f="participants" placeholder="clinician, patient"></label>
+      <label>Goals (semicolon-separated) <input data-f="goals" placeholder="Convey risks, benefits, alternatives"></label>
+      <label>Typical speech features (comma-separated) <input data-f="features" placeholder="teach-back, numeric risk"></label>
+      <label>Order <input data-f="order" type="number" value="1" min="1"></label>
+    </div>
+    <label>Prerequisite areas (comma-separated area IDs) <input data-f="prereqs" placeholder="diagnosis-explanation"></label>
+    <button class="btn btn-small btn-ghost remove-area" type="button">Remove area</button>
+  </div>
+</template>
+<script type="module" src="app.js"></script>
+</body>
+</html>

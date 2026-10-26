@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melon Reef — An underwater listening dive · ENTRE VOCES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="game-header">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div><h1>Melon Reef</h1><p class="tagline">An underwater watermelon reef. Listen in one language. Harvest in the other.</p></div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+<main>
+  <section id="screen-title" class="screen is-active">
+    <div class="panel panel-hero">
+      <p class="kicker">Underwater harvest · Listening recognition (Stages 1 &amp; 5)</p>
+      <h2>Down here, words grow inside watermelons. Your ears pick the ripe one.</h2>
+      <p>Pilot the little melon-sub. Press <strong>Listen</strong> — a voice speaks in your study language. Swim into the melon carrying the English word you heard. Right melon: sweet, oxygen back. Wrong melon: jellyfish sting, oxygen gone. Nobody teaches listening with a submarine. Until now.</p>
+      <p class="controls">Move: <span class="keycap">← → ↑ ↓</span> / <span class="keycap">W A S D</span> — or just move your mouse / finger and the sub follows · <span class="keycap">L</span> Listen again</p>
+      <p id="titleContext" class="hint">Filling the reef…</p>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Dive the reef</button>
+    </div>
+  </section>
+  <section id="screen-play" class="screen">
+    <div class="hud"><span id="hudPrompt" class="pill pill-strong"></span><span id="hudOxygen" class="pill"></span><span id="hudHarvest" class="pill"></span><button id="listenBtn" class="btn" type="button">Listen</button></div>
+    <canvas id="game" width="960" height="540" aria-label="Melon Reef — swim the sub into the melon matching the spoken word"></canvas>
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    <div class="play-actions"><button id="quitBtn" class="btn btn-ghost" type="button">Surface early</button></div>
+  </section>
+  <section id="screen-end" class="screen">
+    <div class="panel panel-hero">
+      <p class="kicker">Surface report</p><h2 id="endTitle">Back in the sun.</h2>
+      <div id="endStats"></div><div id="endExplain" class="explain"></div>
+      <div class="play-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">Dive again</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
+    </div>
+  </section>
+</main>
+<footer><p>Melon Reef · ENTRE VOCES · The reef only ripens for listeners.</p></footer>
+<script type="module" src="game.js"></script>
+</body>
+</html>

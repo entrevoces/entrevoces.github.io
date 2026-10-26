@@ -1,0 +1,10 @@
+{
+  "gameId": "neon-bastion",
+  "label": "Neon Bastion",
+  "domainIds": ["oregon-medical", "oregon-legal", "ontario-real-estate", "oregon-cultivation", "california-tax", "ai-technology"],
+  "competences": ["cognitive-interpreting", "bilingual-terminology"],
+  "stages": [2, 6],
+  "engineUrl": "http://127.0.0.1:8787",
+  "offlineSeed": "concepts-subset.json",
+  "version": 1
+}

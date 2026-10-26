@@ -1,0 +1,23 @@
+{
+  "gameId": "repair-shop",
+  "label": "Repair Shop",
+  "domainIds": [
+    "oregon-medical",
+    "oregon-legal",
+    "ontario-real-estate",
+    "oregon-cultivation",
+    "california-tax",
+    "ai-technology"
+  ],
+  "competences": [
+    "meaning-transfer",
+    "speech-production"
+  ],
+  "stages": [
+    7,
+    8
+  ],
+  "engineUrl": "http://127.0.0.1:8787",
+  "offlineSeed": "concepts-subset.json",
+  "version": 1
+}

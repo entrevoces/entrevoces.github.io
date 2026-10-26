@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENTRE VOCES — Learn to interpret, play to master</title>
+<meta name="description" content="A progression engine for professional interpreting. Oregon Legal and Medical to start — any domain the engine is configured for.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="backdrop" aria-hidden="true">
+  <div class="layer layer-sky"></div>
+  <svg class="layer layer-far" viewBox="0 0 1200 260" preserveAspectRatio="none"><path d="M0 210 L120 120 L260 190 L420 90 L600 180 L760 110 L920 185 L1060 130 L1200 200 L1200 260 L0 260 Z" fill="#9db8ad"/></svg>
+  <svg class="layer layer-mid" viewBox="0 0 1200 220" preserveAspectRatio="none"><path d="M0 180 L180 110 L360 165 L560 95 L760 160 L940 105 L1200 170 L1200 220 L0 220 Z" fill="#5f8577"/></svg>
+</div>
+
+<header class="hero">
+  <p class="eyebrow">Progression engine for professional interpreting</p>
+  <h1>Entre Voces</h1>
+  <p class="lede">One engine learns what interpreters must know — in any domain it is configured for. Games are how you practice it. Oregon Legal &amp; Medical are where we start, not where it ends.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary btn-large" href="#continueCard">Continue learning</a>
+    <a class="btn btn-large" href="#games">Browse games</a>
+    <a class="btn btn-large" href="#lab">Game Lab</a>
+  </div>
+  <p id="syncBadge" class="pill pill-local">Checking engine…</p>
+</header>
+
+<main>
+  <section class="card intro-card" aria-labelledby="setupTitle">
+    <p class="kicker">Start here — this choice follows you into every room</p>
+    <h2 id="setupTitle">What are you studying?</h2>
+    <p>Pick one world, or a few. Each stays in its own lane — Oregon Legal never bleeds into Oregon Medical, and your new worlds keep their own evidence, queues, and recommendations. Switch your focus any time; nothing mixes.</p>
+    <div id="studyDomains" class="study-grid" role="group" aria-label="Choose what you are studying"></div>
+    <div class="setup-grid">
+      <label>Focus (primary world)
+        <select id="domainSelect"></select>
+      </label>
+      <label>I interpret into
+        <select id="pairSelect"><option value="es">Español</option><option value="zh">中文 (Mandarin)</option></select>
+      </label>
+      <label>Engine URL
+        <input id="engineUrlInput" type="url" value="http://127.0.0.1:8787" spellcheck="false">
+      </label>
+      <button id="saveSetupBtn" class="btn btn-primary" type="button">Begin studying</button>
+    </div>
+    <p id="studySummary" class="hint" role="status" aria-live="polite"></p>
+    <p class="hint">Worlds and translation areas are authored in the <a href="../engine-console/">Engine Console</a> — add one there and it appears here on next load. No game redeploy, ever.</p>
+    <p id="learnerLine" class="hint"></p>
+  </section>
+
+  <section class="card card-accent" id="continueCard" aria-labelledby="continueTitle">
+    <h2 id="continueTitle">Continue — the engine recommends</h2>
+    <div id="nextBox"><p class="hint">Reading your evidence…</p></div>
+    <div class="row-actions">
+      <button id="playNextBtn" class="btn btn-primary" type="button">Play recommended game</button>
+      <button id="syncNowBtn" class="btn" type="button">Sync now</button>
+      <span id="syncStatus" class="hint" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section id="games" aria-labelledby="gamesTitle">
+    <h2 id="gamesTitle" class="section-title">Eleven doors. One career. No repeated verb.</h2>
+    <p class="hint section-hint">Each place below is a complete standalone site — a studio, a night river, a shooter, a watermelon reef. Different hands, different stakes; the same learner walks through every door.</p>
+    <div class="game-grid">
+      <article class="game-card">
+        <div class="game-art art-clinch" aria-hidden="true"><span>VA</span></div>
+        <p class="verb-line">BUILD · place, craft, reconcile</p>
+        <h3>Voice Atelier</h3>
+        <p class="hook">Build the studio between clinic and courthouse. Tile-build the language, catch the lie, reconcile rival terms — spend the Trust on rooms that feel like yours.</p>
+        <p class="meta">Trains: terminology, distinctions, reformulation</p>
+        <a class="btn btn-primary game-link" data-game="concept-clinch" href="../games/concept-clinch/">Enter the Atelier</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-shift" aria-hidden="true"><span>NS</span></div>
+        <p class="verb-line">ENDURE · catch, stack, render</p>
+        <h3>Night Shift</h3>
+        <p class="hook">Speech is a river at midnight. Catch the gold orbs, stack Rozan notes, then render from paper alone while stamina and hearts run thin.</p>
+        <p class="meta">Trains: listening, note-taking, memory, delivery</p>
+        <a class="btn btn-primary game-link" data-game="shift-consecutive" href="../games/shift-consecutive/">Start tonight</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-bench" aria-hidden="true"><span>BC</span></div>
+        <p class="verb-line">DECIDE · scan, render, stamp</p>
+        <h3>Bench Call</h3>
+        <p class="hook">Paper slides across oak. Walk your eyes in sense-groups, voice them live — then someone whispers. Two stamps wait. The book remembers.</p>
+        <p class="meta">Trains: sight translation, judgment, nerve</p>
+        <a class="btn btn-primary game-link" data-game="bench-call" href="../games/bench-call/">Take the desk</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-rush" aria-hidden="true"><span>TR</span></div>
+        <p class="verb-line">RUSH · catch before it lands</p>
+        <h3>Term Rush</h3>
+        <p class="hook">Equivalents rain. Three lives. Rising speed. The arcade that proves retrieval under pressure — Stage 6, honestly timed.</p>
+        <p class="meta">Trains: rapid retrieval, nerve</p>
+        <a class="btn btn-primary game-link" data-game="term-rush" href="../games/term-rush/">Start the rain</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-echo" aria-hidden="true"><span>ES</span></div>
+        <p class="verb-line">ECHO · hold the thread</p>
+        <h3>Echo Sequence</h3>
+        <p class="hook">Stones speak in order — term, number, negation, date. Walk them back whole. Memory as a path, not a bucket.</p>
+        <p class="meta">Trains: ordered memory, production</p>
+        <a class="btn btn-primary game-link" data-game="echo-sequence" href="../games/echo-sequence/">Enter the garden</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-table" aria-hidden="true"><span>TT</span></div>
+        <p class="verb-line">NEGOTIATE · handle, then stand</p>
+        <h3>The Table</h3>
+        <p class="hook">Choose how to handle each turn — clarify, chunk, render, slow — then stand behind words while trust watches.</p>
+        <p class="meta">Trains: strategy, integrated fidelity</p>
+        <a class="btn btn-primary game-link" data-game="the-table" href="../games/the-table/">Take your seat</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-repair" aria-hidden="true"><span>RS</span></div>
+        <p class="verb-line">REPAIR · find the betrayal</p>
+        <h3>Repair Shop</h3>
+        <p class="hook">Someone else's rendering, still warm, one segment lying. Lift it, fit the honest part, learn the second hearing.</p>
+        <p class="meta">Trains: self-monitoring, repair</p>
+        <a class="btn btn-primary game-link" data-game="repair-shop" href="../games/repair-shop/">Open the shop</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-vr" aria-hidden="true"><span>VR</span></div>
+        <p class="verb-line">IMMERSE · gaze, point, carry</p>
+        <h3>Lingua Lab VR</h3>
+        <p class="hook">Step inside the lab (WebXR headset, controllers, gaze — or mouse). Spanish AI terms orbit; carry each into English in space.</p>
+        <p class="meta">Trains: equivalents in 3D · ES→EN tech</p>
+        <a class="btn btn-primary game-link" data-game="vr-lingua-lab" href="../games/vr-lingua-lab/">Enter the lab</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-craft" aria-hidden="true"><span>VC</span></div>
+        <p class="verb-line">MINE &amp; BUILD · dig, craft, cross</p>
+        <h3>VocabCraft</h3>
+        <p class="hook">A voxel valley split by a river. Mine the true term-blocks, craft them into a bridge, and walk your understanding across.</p>
+        <p class="meta">Trains: equivalents, applied building</p>
+        <a class="btn btn-primary game-link" data-game="vocab-craft" href="../games/vocab-craft/">Start crafting</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-bastion" aria-hidden="true"><span>NB</span></div>
+        <p class="verb-line">SHOOT · run, jump, blast the truth</p>
+        <h3>Neon Bastion</h3>
+        <p class="hook">A platform shooter at dusk. Glitch-drones carry equivalents across neon ledges — blast only the true one. Precision is the weapon.</p>
+        <p class="meta">Trains: retrieval under fire, nerve</p>
+        <a class="btn btn-primary game-link" data-game="neon-bastion" href="../games/neon-bastion/">Defend the bastion</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-reef" aria-hidden="true"><span>MR</span></div>
+        <p class="verb-line">DIVE · listen, swim, harvest</p>
+        <h3>Melon Reef</h3>
+        <p class="hook">An underwater watermelon reef. Hear a word in your study language, pilot the melon-sub, harvest its English melon before oxygen runs thin.</p>
+        <p class="meta">Trains: listening recognition, reverse direction</p>
+        <a class="btn btn-primary game-link" data-game="melon-reef" href="../games/melon-reef/">Dive the reef</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-roblox" aria-hidden="true"><span>RB</span></div>
+        <p class="verb-line">ROBLOX · obby islands (Studio)</p>
+        <h3>Puente Islands</h3>
+        <p class="hook">The Roblox Studio world: islanders, priced bridges, points that persist. Import the Luau, press Play, carry Spanish across.</p>
+        <p class="meta">Runs in Roblox Studio · install guide inside</p>
+        <a class="btn" href="../games/roblox-puente-islands/README.md">Open Studio guide</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="card mirror-card" aria-labelledby="mirrorTitle">
+    <h2 id="mirrorTitle">Your mirror — exactly what is being evaluated</h2>
+    <p>No hidden grades. The engine watches <strong>eight proofs per concept</strong> and ten competences, weighs how recent and how helped each proof was, and predicts what you are about to forget. This is that view, unedited.</p>
+    <div id="mirrorStages"></div>
+    <h3>Suggested for your gaps (not generic — computed)</h3>
+    <div id="suggestedGames" class="suggested-grid"></div>
+    <p class="hint">Suggestions re-rank after every session in any game. Due reviews outrank novelty; thinnest stage outranks comfort.</p>
+  </section>
+
+  <section class="card" aria-labelledby="progressTitle">
+    <h2 id="progressTitle">Your progress — evidence, not vibes</h2>
+    <div id="progressBox"><p class="hint">No evidence yet. Play a round and your competence picture appears here — the same record every game sees.</p></div>
+    <div class="row-actions">
+      <button id="exportBtn" class="btn" type="button">Export evidence JSON</button>
+      <button id="resetBtn" class="btn btn-ghost" type="button">Reset demo learner</button>
+      <a class="btn" href="../engine-console/">Inspect in Engine Console</a>
+    </div>
+  </section>
+
+  <section class="card" id="lab" aria-labelledby="labTitle">
+    <h2 id="labTitle">Game Lab — watch the engine invent</h2>
+    <p>Pick an audience and a gap. The Lab examines domain knowledge and portfolio coverage, proposes an original interaction, critiques it, and — when it fits a template — lets you play an instant preview. Ideas are labeled honestly: idea, specification, or playable.</p>
+    <div class="setup-grid">
+      <label>Audience
+        <select id="labAudience"><option value="aspiring">Aspiring interpreter (bilingual, new to the profession)</option><option value="staff">Bilingual staff (strong language, light training)</option><option value="student">Interpreting student</option><option value="pro">Working professional (sharpening)</option></select>
+      </label>
+      <label>Learning gap to target
+        <select id="labGap"><option value="auto">Auto — weakest coverage</option><option value="knowledge">Knowledge acquisition</option><option value="spoken">Spoken interpreting</option><option value="judgment">Professional judgment</option></select>
+      </label>
+      <button id="inventBtn" class="btn btn-primary" type="button">Invent a game concept</button>
+    </div>
+    <div id="labOut" aria-live="polite"></div>
+    <hr>
+    <h3>Make your own game — no code, three taps</h3>
+    <p>New here? You do not need to know computers. Answer three plain questions and we will build you a playable game from your chosen world. You can change anything and rebuild as often as you like.</p>
+    <div class="setup-grid">
+      <label>1 · Who is it for?
+        <select id="makerWho"><option value="me">Me — I want to practise</option><option value="class">My class or group</option><option value="friend">A friend or colleague</option></select>
+      </label>
+      <label>2 · What should players DO?
+        <select id="makerVerb"><option value="term-rush">Catch falling words fast (quick, exciting)</option><option value="echo-sequence">Remember a growing chain (calm, focused)</option><option value="repair-shop">Spot and fix mistakes (careful, satisfying)</option><option value="concept-clinch">Build a little studio, slowly (relaxed, creative)</option><option value="neon-bastion">Shoot drones from platforms (a shooter!)</option><option value="melon-reef">Dive underwater and harvest melons by ear (peaceful)</option></select>
+      </label>
+      <label>3 · Give it a name
+        <input id="makerName" type="text" placeholder="e.g. My Clinic Words Game" maxlength="40">
+      </label>
+      <button id="makerBtn" class="btn btn-primary" type="button">Make my game</button>
+    </div>
+    <div id="makerOut" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="sourcesTitle">
+    <h2 id="sourcesTitle">Where the knowledge comes from</h2>
+    <div id="sourceBox"><p class="hint">Opening the source register…</p></div>
+    <p class="hint">Every concept in every game traces to this register. Inferred material is flagged and never taught as authoritative. Full provenance per concept lives in the Engine Console → Knowledge Browser.</p>
+  </section>
+</main>
+
+<footer>
+  <p>ENTRE VOCES · Progression Engine first, games as proof. <a href="../engine-console/">Engine Console</a> · <a href="../../spec.md">Specification</a> · Games work offline; progress syncs when the engine is reachable.</p>
+</footer>
+<script type="module" src="hub.js"></script>
+</body>
+</html>

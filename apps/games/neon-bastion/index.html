@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Bastion — Platform shooter · ENTRE VOCES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="game-header">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div><h1>Neon Bastion</h1><p class="tagline">A platform shooter. Glitch-drones carry words. Only one carries the truth.</p></div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+<main>
+  <section id="screen-title" class="screen is-active">
+    <div class="panel panel-hero">
+      <p class="kicker">Platform shooter · Retrieval under fire (Stages 2 &amp; 6)</p>
+      <h2>The bastion runs on true equivalents. Shoot the drone that carries yours.</h2>
+      <p>Run and jump the neon ledges. A word flashes as your target. Four drones patrol — blast the one carrying its true equivalent, spare the neighbours (they cost shield). Nobody expects a shooter to teach precision. That is the point.</p>
+      <p class="controls"><span class="keycap">← →</span> or <span class="keycap">A D</span> move · <span class="keycap">W</span>/<span class="keycap">↑</span> jump · <span class="keycap">Space</span>/<span class="keycap">J</span> or click to shoot · Touch: ◀ ▶ to move, tap sky to jump, tap drone to shoot it</p>
+      <p id="titleContext" class="hint">Powering the bastion…</p>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Defend the bastion</button>
+    </div>
+  </section>
+  <section id="screen-play" class="screen">
+    <div class="hud"><span id="hudPrompt" class="pill pill-strong"></span><span id="hudScore" class="pill">Score 0</span><span id="hudShield" class="pill"></span><span id="hudWave" class="pill"></span></div>
+    <canvas id="game" width="960" height="540" aria-label="Neon Bastion playfield — run, jump, shoot the true-equivalent drone"></canvas>
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    <div class="play-actions"><button id="quitBtn" class="btn btn-ghost" type="button">Abandon bastion</button></div>
+  </section>
+  <section id="screen-end" class="screen">
+    <div class="panel panel-hero">
+      <p class="kicker">Bastion report</p><h2 id="endTitle">The sky clears.</h2>
+      <div id="endStats"></div><div id="endExplain" class="explain"></div>
+      <div class="play-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">Defend again</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
+    </div>
+  </section>
+</main>
+<footer><p>Neon Bastion · ENTRE VOCES · Precision is a weapon; neighbours are the recoil.</p></footer>
+<script type="module" src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "gameId": "vocab-craft",
+  "label": "VocabCraft",
+  "domainIds": ["oregon-medical", "oregon-legal", "ontario-real-estate", "oregon-cultivation", "california-tax", "ai-technology"],
+  "competences": ["bilingual-terminology", "terminology-usage"],
+  "stages": [2, 5],
+  "engineUrl": "http://127.0.0.1:8787",
+  "offlineSeed": "concepts-subset.json",
+  "version": 1
+}

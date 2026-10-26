@@ -1,0 +1,20 @@
+/* Lingua Lab VR — slate lab, signal-teal crystal, warm brass. Depth without neon slop. */
+:root{--ink:#141d22;--teal:#1b9aaa;--teal-dark:#0f6f7d;--brass:#c9a227;--bg:#1d2a30;--card:#fffdf6}
+*{box-sizing:border-box}body{margin:0;font-family:"Public Sans",system-ui,sans-serif;color:#eaf2f0;background:var(--bg);line-height:1.55}
+h1,h2{font-family:"Fraunces",Georgia,serif}button{font:inherit}a{color:var(--brass)}:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.hud-top{max-width:1000px;margin:0 auto;padding:18px 18px 6px;display:flex;gap:16px;align-items:flex-start}.hud-top h1{margin:0;font-size:34px;color:#fff}.tagline{margin:3px 0 0;color:#a9c2bb;font-weight:600}.back-link{font-weight:700;margin-top:8px;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;min-height:32px;padding:4px 12px;border-radius:999px;border:1.5px solid #7fa79b;font-size:14px;font-weight:700;background:#fff;color:var(--ink)}.pill-strong{background:var(--brass);border-color:#7a5f08;color:#3d2f02}.pill-on{color:var(--teal-dark)}.pill-local{background:#fdf3e0;border-color:var(--brass);color:#6b4a08}.prompt-pill{background:#dff4f6}
+.hud{max-width:1000px;margin:0 auto;padding:6px 18px;display:flex;flex-wrap:wrap;gap:8px}
+#stage{position:relative;max-width:1000px;margin:6px auto 0;padding:0 18px}
+#gl{width:100%;height:62vh;display:block;border:1.5px solid #0c211c;border-radius:14px;background:#101d24}
+#reticle{position:fixed;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #fff;border-radius:50%;z-index:6;pointer-events:none;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.lobby{position:absolute;inset:auto 28px 18px 28px;z-index:4}
+.panel{background:var(--card);color:var(--ink);border:1.5px solid #0c211c;border-radius:14px;padding:20px;box-shadow:0 3px 0 #0c211c;max-width:1000px;margin:14px auto}
+.kicker{font-weight:700;color:#8a5a12;margin:0 0 6px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:11px 20px;border:1.5px solid #0c211c;border-radius:9px;background:#fff;color:var(--ink);font-weight:700;text-decoration:none;cursor:pointer;box-shadow:0 2px 0 #0c211c}.btn-primary{background:var(--teal);color:#fff}.btn-large{min-height:54px;padding:13px 26px;font-size:18px}
+.lobby-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.hint{color:#5c7268;font-size:14px}
+.prompt{font-size:22px;font-weight:700}.choices{display:grid;gap:10px}.choice-btn{min-height:54px;text-align:left;padding:12px 16px;border:1.5px solid var(--ink);border-radius:10px;background:#fff;font-weight:700;font-size:16px;cursor:pointer}
+.feedback{font-weight:700;min-height:28px}.feedback.good{color:#0f5a4f}.feedback.bad{color:#7c2718}
+.end-panel{margin-bottom:20px}.explain{border:1.5px solid var(--teal);background:#f2f8f5;border-radius:10px;padding:14px;margin-top:12px}
+#errOverlay{position:fixed;inset:12px auto auto 50%;transform:translateX(-50%);z-index:20;background:#7c2718;color:#fff;border-radius:10px;padding:12px 18px;font-weight:700;max-width:90vw}
+footer{max-width:1000px;margin:0 auto;padding:10px 18px 26px;color:#a9c2bb;font-size:14px}
+@media (max-width:640px){#gl{height:54vh}.lobby{inset:auto 22px 12px 22px}}

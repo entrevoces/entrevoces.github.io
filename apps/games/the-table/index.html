@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Table — Negotiation of meaning · ENTRE VOCES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="game-header">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div><h1>The Table</h1><p class="tagline">Everyone wants something. Meaning is what gets negotiated.</p></div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+<main>
+  <section id="screen-title" class="screen is-active">
+    <div class="panel panel-hero">
+      <p class="kicker">Integrated performance · Stages 5 &amp; 8</p>
+      <h2>Sit down. The other side is already talking.</h2>
+      <p>Each sitting is a live exchange with stakes: choose how to handle the turn — clarify, chunk it, render now, or slow the room — then stand behind a rendering. Trust rises and cracks in faces, not scores. Finish the sitting without spending trust you do not have.</p>
+      <p id="titleContext" class="hint">Setting the table…</p>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Take your seat</button>
+    </div>
+  </section>
+  <section id="screen-play" class="screen">
+    <div class="hud"><span id="hudSit" class="pill pill-strong"></span><span class="meter-wrap">Trust <span class="meter"><span id="trustFill"></span></span></span><span id="hudTurn" class="pill"></span></div>
+    <div class="table-scene">
+      <div class="seat seat-left"><div class="face" id="faceA">A</div><span id="nameA">—</span></div>
+      <div class="bubble" id="bubbleText">…</div>
+      <div class="seat seat-right"><div class="face face-you">You</div><span>Interpreter</span></div>
+    </div>
+    <p id="stakeLine" class="stake-line"></p>
+    <div id="choiceZone"></div>
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    <div class="play-actions"><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next turn</button><button id="quitBtn" class="btn btn-ghost" type="button">Leave the table</button></div>
+  </section>
+  <section id="screen-end" class="screen">
+    <div class="panel panel-hero">
+      <p class="kicker">Adjourned</p><h2 id="endTitle">The table clears.</h2>
+      <div id="endStats"></div><div id="endExplain" class="explain"></div>
+      <div class="play-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">Sit again</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
+    </div>
+  </section>
+</main>
+<footer><p>The Table · ENTRE VOCES · Strategy is also fidelity: knowing when not to render yet.</p></footer>
+<script type="module" src="game.js"></script>
+</body>
+</html>

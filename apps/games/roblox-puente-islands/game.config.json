@@ -1,0 +1,10 @@
+{
+  "gameId": "roblox-puente-islands",
+  "label": "Puente Islands (Roblox Studio)",
+  "domainIds": ["ai-technology", "oregon-medical", "oregon-legal", "ontario-real-estate", "oregon-cultivation", "california-tax"],
+  "competences": ["bilingual-terminology", "meaning-transfer"],
+  "stages": [2, 5],
+  "engineUrl": "http://127.0.0.1:8787",
+  "offlineSeed": "concepts-subset.json",
+  "version": 1
+}

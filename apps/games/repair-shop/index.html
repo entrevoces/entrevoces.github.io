@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repair Shop — Fix it before it ships · ENTRE VOCES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="game-header">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div><h1>Repair Shop</h1><p class="tagline">Every interpreter ships drafts. Masters repair them in public.</p></div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+<main>
+  <section id="screen-title" class="screen is-active">
+    <div class="panel panel-hero">
+      <p class="kicker">Workshop · Self-monitoring &amp; repair</p>
+      <h2>On the bench: someone else's interpreting. Still warm. Slightly broken.</h2>
+      <p>A source turn and the rendering it got — in segments. Tap the segment that betrays the meaning, then fit the right part from the tray. Some flaws are dents. Some would total the car. Learn to charge accordingly.</p>
+      <p id="titleContext" class="hint">Opening the shop ledger…</p>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Open the shop</button>
+    </div>
+  </section>
+  <section id="screen-play" class="screen">
+    <div class="hud"><span id="hudJob" class="pill pill-strong"></span><span id="hudFixed" class="pill"></span></div>
+    <div class="bench-card">
+      <p class="bench-label">They said</p>
+      <blockquote id="sourceText" class="source-text"></blockquote>
+      <p class="bench-label">It went out as — tap the broken segment</p>
+      <div id="segmentRow" class="segment-row"></div>
+      <p class="bench-label">Parts tray — fit the honest part</p>
+      <div id="trayRow" class="tray-row"></div>
+      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+      <div class="play-actions"><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next job</button><button id="quitBtn" class="btn btn-ghost" type="button">Close shop</button></div>
+    </div>
+  </section>
+  <section id="screen-end" class="screen">
+    <div class="panel panel-hero">
+      <p class="kicker">Shop report</p><h2 id="endTitle">Tools down.</h2>
+      <div id="endStats"></div><div id="endExplain" class="explain"></div>
+      <div class="play-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">More jobs</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
+    </div>
+  </section>
+</main>
+<footer><p>Repair Shop · ENTRE VOCES · Hearing your own error one second late is still hearing it in time.</p></footer>
+<script type="module" src="game.js"></script>
+</body>
+</html>

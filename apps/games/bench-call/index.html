@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bench Call — Scan it. Stamp it. Own the record. · ENTRE VOCES</title>
+<meta name="description" content="A document-desk drama: sight-translate live paper, then make the professional call and stamp the record.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="game-header">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div class="title-block">
+    <h1>Bench Call</h1>
+    <p class="tagline">Paper on the desk. Court waiting. Scan, render, stamp — the record is forever.</p>
+  </div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+
+<main id="app">
+  <section id="screen-title" class="screen is-active">
+    <div class="panel panel-hero">
+      <p class="kicker">Sight translation · Professional judgment</p>
+      <h2>The judge slides a document across. Everyone watches you read it — out loud, in the other language, now.</h2>
+      <p class="hero-short">Press <strong>Scan</strong> to walk your eyes across the paper in sense-groups. Render each group before the paper settles. Then the hard part: someone whispers for help the rules forbid. Choose. <strong>Stamp</strong> it. Live with the record.</p>
+      <p id="titleContext" class="hint">Laying out the papers…</p>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">Take the desk</button>
+    </div>
+  </section>
+
+  <section id="screen-play" class="screen">
+    <div class="hud">
+      <span id="hudCase" class="pill pill-strong"></span>
+      <span id="hudDoc" class="pill"></span>
+      <span id="hudSeals" class="pill">Seals 0</span>
+    </div>
+    <div class="desk-layout">
+      <div class="doc-card">
+        <div class="doc-head"><span id="docTitle">Document</span><span id="chunkLabel" class="hint"></span></div>
+        <div id="docPaper" class="doc-paper" aria-label="Sight document"></div>
+        <div class="scan-row">
+          <button id="scanBtn" class="btn btn-primary" type="button">Scan next group</button>
+          <span class="hint">Eyes lead, voice follows. One sense-group at a time — that gap is the skill.</span>
+        </div>
+        <label class="render-label">Render this group aloud (type what you would say)
+          <textarea id="chunkInput" rows="2" placeholder="Render only the lit group. The rest of the paper stays patient."></textarea>
+        </label>
+        <div class="desk-actions">
+          <button id="renderChunkBtn" class="btn btn-primary" type="button">Render group</button>
+          <span id="chunkFeedback" class="feedback" role="status" aria-live="polite"></span>
+        </div>
+        <div id="stampZone" hidden>
+          <h3 id="dilemmaTitle">The whisper</h3>
+          <p id="dilemmaText"></p>
+          <div id="stampChoices" class="stamp-choices"></div>
+        </div>
+      </div>
+      <aside class="record-card">
+        <h3>The record</h3>
+        <p class="hint">What gets stamped, stays. Choose like it will be read back to you — it will.</p>
+        <div id="recordBook" class="record-book"><p class="hint">No seals yet. The book is blank and listening.</p></div>
+        <div id="principleCard" class="principle-card" hidden></div>
+        <div class="desk-actions">
+          <button id="nextCaseBtn" class="btn btn-primary" type="button" hidden>Next case</button>
+          <button id="endBtn" class="btn btn-ghost" type="button">Leave the desk</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="screen-end" class="screen">
+    <div class="panel panel-hero end-panel">
+      <p class="kicker">Desk report</p>
+      <h2 id="endTitle">The book closes.</h2>
+      <div id="endStats"></div>
+      <div id="endExplain" class="explain"></div>
+      <div class="play-actions">
+        <button id="againBtn" class="btn btn-primary btn-large" type="button">Next sitting</button>
+        <a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><p>Bench Call · ENTRE VOCES · Complete and accurate, without fear or favor — stamped, not suggested.</p></footer>
+<div id="fxLayer" aria-hidden="true"></div>
+<script type="module" src="game.js"></script>
+</body>
+</html>

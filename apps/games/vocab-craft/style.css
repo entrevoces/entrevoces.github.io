@@ -1,0 +1,22 @@
+/* VocabCraft — grass, dirt, river slate. Chunky, sunlit, honest voxels. */
+:root{--ink:#1c2416;--grass:#5b8c3e;--dirt:#8a5a2e;--teal:#0e7a68;--bg:#2c3a26;--card:#fffdf4}
+*{box-sizing:border-box}body{margin:0;font-family:"Public Sans",system-ui,sans-serif;color:#f0f3e4;background:var(--bg);line-height:1.55}
+h1,h2{font-family:"Fraunces",Georgia,serif}button{font:inherit}a{color:#f4d58a}:focus-visible{outline:3px solid #f4d58a;outline-offset:2px}
+.hud-top{max-width:1000px;margin:0 auto;padding:18px 18px 6px;display:flex;gap:16px;align-items:flex-start}.hud-top h1{margin:0;font-size:34px;color:#fff}.tagline{margin:3px 0 0;color:#c3d2b2;font-weight:600}.back-link{font-weight:700;margin-top:8px;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;min-height:32px;padding:4px 12px;border-radius:999px;border:1.5px solid #8aa07a;font-size:14px;font-weight:700;background:#fff;color:var(--ink)}.pill-strong{background:#f4d58a;border-color:#7a5f08;color:#3d2f02}.pill-on{color:#0f5a4f}.pill-local{background:#fdf3e0;border-color:#c9a227;color:#6b4a08}.prompt-pill{background:#e6f4f0}
+.hud{max-width:1000px;margin:0 auto;padding:6px 18px;display:flex;flex-wrap:wrap;gap:8px}
+#stage{position:relative;max-width:1000px;margin:6px auto 0;padding:0 18px}
+#gl{width:100%;height:62vh;display:block;border:1.5px solid #141f0e;border-radius:14px;background:#87b5d6;cursor:crosshair}
+#crosshair{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-size:28px;font-weight:700;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none;z-index:5}
+.lobby{position:absolute;inset:auto 28px 18px 28px;z-index:4;max-height:52vh;overflow:auto}
+.panel{background:var(--card);color:var(--ink);border:1.5px solid #141f0e;border-radius:14px;padding:20px;box-shadow:0 3px 0 #141f0e;max-width:1000px;margin:14px auto}
+.kicker{font-weight:700;color:#6b4a08;margin:0 0 6px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:11px 20px;border:1.5px solid #141f0e;border-radius:9px;background:#fff;color:var(--ink);font-weight:700;text-decoration:none;cursor:pointer;box-shadow:0 2px 0 #141f0e}.btn-primary{background:var(--teal);color:#fff}.btn-large{min-height:54px;padding:13px 26px;font-size:18px}
+.lobby-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.hint{color:#5c7268;font-size:14px}
+.end-panel{margin-bottom:20px}.explain{border:1.5px solid var(--teal);background:#f2f8f5;border-radius:10px;padding:14px;margin-top:12px}
+#errOverlay{position:fixed;inset:12px auto auto 50%;transform:translateX(-50%);z-index:20;background:#7c2718;color:#fff;border-radius:10px;padding:12px 18px;font-weight:700;max-width:90vw}
+footer{max-width:1000px;margin:0 auto;padding:10px 18px 26px;color:#c3d2b2;font-size:14px}
+.flat-blocks{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#flatPanel{position:relative;z-index:5;margin:12px auto;max-width:640px}
+#touchPad{position:fixed;right:10px;bottom:10px;display:grid;grid-template-columns:repeat(3,48px);gap:6px;z-index:6}
+#touchPad button{min-height:48px;font-size:18px}
+#touchPad button:nth-child(1){grid-column:2}
