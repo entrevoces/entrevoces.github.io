@@ -6,6 +6,9 @@ import * as core from "../../../packages/engine-core/index.js";
 import { EngineClient } from "../../../packages/engine-client/engine-client.js";
 import { Juice } from "../../../packages/game-kit/juice.js";
 const $ = (s) => document.querySelector(s);
+const cv = $("#game"), ctx = cv.getContext("2d");
+const W = 960, H = 540;
+const juiceC = new Juice(cv);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, concepts = [], targetLang = "es", demoMode = false;
 let G = null;
@@ -54,6 +57,7 @@ async function boot() {
   $("#listenVerseBtn").addEventListener("click", () => { if (G) speak(VERSES[G.i].es, "es"); });
   $("#quitBtn").addEventListener("click", () => endGame());
   renderShelf();
+  cv.addEventListener("pointerdown", onTap);
 }
 function renderShelf() {
   $("#shelf").innerHTML = CLASSICS.map((r, i) => {
@@ -61,32 +65,84 @@ function renderShelf() {
     return `<article class="record ${unlocked ? "" : "locked"}"><p class="kicker">${unlocked ? "On your shelf" : "Locked — carry a verse"}</p><h4>${esc(r.title)}</h4><p><strong>${esc(r.artist)}</strong></p><p>${unlocked ? esc(r.culture) : "Its story unlocks when its verse is carried across."}</p>${unlocked ? `<div class="listen-links"><a class="btn" target="_blank" rel="noopener" href="${spotify(r.query)}">Listen on Spotify</a><a class="btn" target="_blank" rel="noopener" href="${apple(r.query)}">Apple Music</a></div>` : ""}</article>`;
   }).join("");
 }
+let raf = null;
+function recordRect(i) { return { x: 92 + i * 272, y: 300, w: 244, h: 150 }; }
 function startGame() {
-  G = { i: 0, order: shuffle(VERSES.map((_, i) => i)), carried: 0, hearts: 3, unlocked: new Set() };
-  show("screen-play"); loadVerse();
+  G = { i: 0, order: shuffle(VERSES.map((_, i) => i)), carried: 0, hearts: 3, unlocked: new Set(), options: [], answered: false, t: 0, spin: 0 };
+  show("screen-play"); loadVerse(); loop();
 }
+function loop() { if (!G) return; G.t++; G.spin += 0.008; draw(); juiceC.update(); if ($("#screen-play").classList.contains("is-active")) raf = requestAnimationFrame(loop); }
+function onTap(e) {
+  if (!G || G.answered) return;
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * (W / r.width), y = (e.clientY - r.top) * (H / r.height);
+  const i = G.options.findIndex((o, bi) => { const b = recordRect(bi); return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h; });
+  if (i >= 0) choose(G.options[i].kind, recordRect(i));
+}
+function draw() {
+  const v = VERSES[G.order[G.i]];
+  const { x: sx, y: sy } = juiceC.shakeOffset();
+  ctx.save(); ctx.translate(sx, sy);
+  ctx.fillStyle = "#150a0e"; ctx.fillRect(0, 0, W, H);
+  // bar: lamps, smoke bands, stage
+  for (const lx of [170, 480, 790]) { ctx.fillStyle = "rgba(255,190,90,.13)"; ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx + 26, 0); ctx.lineTo(lx + 90, 250); ctx.lineTo(lx - 64, 250); ctx.closePath(); ctx.fill(); ctx.fillStyle = "#ffbe5a"; ctx.beginPath(); ctx.arc(lx + 13, 16, 9, 0, 7); ctx.fill(); }
+  ctx.fillStyle = "#241118"; ctx.fillRect(0, 238, W, 70);
+  // bandoneon player silhouette left, singer centre
+  ctx.fillStyle = "#0d0508"; ctx.beginPath(); ctx.ellipse(170, 238, 52, 10, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = "#3a2030"; ctx.fillRect(138, 150, 64, 76); ctx.fillStyle = "#f2c29b"; ctx.beginPath(); ctx.arc(170, 136, 17, 0, 7); ctx.fill();
+  ctx.fillStyle = "#c9a227"; ctx.fillRect(196, 168, 54, 44); ctx.fillStyle = "#241114"; for (let i = 0; i < 4; i++) ctx.fillRect(202 + i * 12, 174, 6, 32);
+  ctx.fillStyle = "#0d0508"; ctx.beginPath(); ctx.ellipse(480, 238, 58, 10, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = "#7a2230"; ctx.beginPath(); ctx.moveTo(448, 226); ctx.quadraticCurveTo(480, 130, 512, 226); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#f2c29b"; ctx.beginPath(); ctx.arc(480, 122, 18, 0, 7); ctx.fill();
+  ctx.fillStyle = "#1c1410"; ctx.beginPath(); ctx.arc(474, 120, 2.4, 0, 7); ctx.arc(487, 120, 2.4, 0, 7); ctx.fill();
+  ctx.strokeStyle = "#c9a227"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(494, 138); ctx.lineTo(506, 108); ctx.stroke(); ctx.fillStyle = "#ddd"; ctx.beginPath(); ctx.arc(508, 104, 7, 0, 7); ctx.fill();
+  // verse in smoke
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#c9a227"; ctx.font = "700 13px 'Public Sans', sans-serif"; ctx.fillText(`EL VERSO · ${v.mood.toUpperCase()} · SPOTLIGHT ${conceptName()}`, 480, 286 - 232 + 218);
+  ctx.fillStyle = "#fff8ec"; ctx.font = "italic 700 22px 'Fraunces', Georgia, serif";
+  wrapC(`“${v.es}”`, 480, 84, 760, 28);
+  if (demoMode) { ctx.fillStyle = "#7fe3c8"; ctx.font = "600 13px 'Public Sans', sans-serif"; wrapC(`Word-for-word (the trap): ${v.literal}`, 480, 158, 720, 18); }
+  ctx.fillStyle = "#f7e9e4"; ctx.font = "800 16px 'Public Sans', sans-serif"; ctx.fillText("WHICH RECORD CARRIES IT?", 480, 286);
+  // records as choices
+  G.options.forEach((o, i) => {
+    const b = recordRect(i);
+    ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.beginPath(); ctx.roundRect(b.x + 5, b.y + 7, b.w, b.h, 13); ctx.fill();
+    ctx.fillStyle = o.kind === "vibe" ? "#2b171d" : "#1e1216"; ctx.beginPath(); ctx.roundRect(b.x, b.y, b.w, b.h, 13); ctx.fill();
+    ctx.strokeStyle = "#c9a227"; ctx.lineWidth = 1.6; ctx.stroke();
+    // vinyl
+    ctx.save(); ctx.translate(b.x + 40, b.y + 42); ctx.rotate(G.spin + i);
+    ctx.fillStyle = "#0d0508"; ctx.beginPath(); ctx.arc(0, 0, 25, 0, 7); ctx.fill();
+    ctx.strokeStyle = "#4a2c33"; for (const rr of [19, 14]) { ctx.beginPath(); ctx.arc(0, 0, rr, 0, 7); ctx.stroke(); }
+    ctx.fillStyle = "#c9a227"; ctx.beginPath(); ctx.arc(0, 0, 7, 0, 7); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#fff8ec"; ctx.font = "600 13px 'Public Sans', sans-serif"; ctx.textAlign = "left";
+    wrapL(o.text, b.x + 76, b.y + 28, b.w - 90, 17);
+    ctx.fillStyle = "#c9a227"; ctx.font = "800 11px 'Public Sans', sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(o.label.toUpperCase() + "?", b.x + b.w / 2, b.y + b.h - 12);
+    ctx.textAlign = "center";
+  });
+  juiceC.draw(); ctx.restore();
+}
+function conceptName() { return G?.concept?.terms?.es?.term || ""; }
+function wrapC(text, cx, y, maxW, lh) { const words = String(text).split(/\s+/); let line = "", yy = y; for (const w of words) { const test = line ? line + " " + w : w; if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, cx, yy); yy += lh; line = w; } else line = test; } if (line) ctx.fillText(line, cx, yy); }
+function wrapL(text, x, y, maxW, lh) { const words = String(text).split(/\s+/); let line = "", yy = y; for (const w of words) { const test = line ? line + " " + w : w; if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, yy); yy += lh; line = w; } else line = test; } if (line) ctx.fillText(line, x, yy); }
 function hud() { $("#hudRound").textContent = `Verse ${G.i + 1} / ${G.order.length}`; $("#hudHearts").textContent = `Hearts ${"●".repeat(Math.max(0, G.hearts))}${"○".repeat(Math.max(0, 3 - G.hearts))}`; $("#hudShelf").textContent = `Records ${G.unlocked.size} / ${CLASSICS.length}`; }
 function loadVerse() {
   const v = VERSES[G.order[G.i]];
   const concept = concepts.find((c) => c.conceptId === v.conceptId) || concepts[0];
-  G.concept = concept;
-  $("#verseText").textContent = `“${v.es}”`;
-  $("#verseMood").textContent = `· ${v.mood}`;
-  $("#verseSub").textContent = demoMode ? `Word-for-word (the trap): ${v.literal}` : "";
-  $("#verseQ").textContent = `What is this verse really saying — culturally? (Spotlight: “${concept.terms.es.term}”)`;
-  const options = shuffle([
+  G.concept = concept; G.answered = false;
+  G.options = shuffle([
     { text: v.vibe, kind: "vibe", label: "Carries the vibe" },
     { text: v.literal, kind: "literal", label: "Faithful gloss" },
     { text: v.flat, kind: "flat", label: "Tourist version" },
   ]);
-  $("#choiceZone").innerHTML = options.map((o, i) => `<button type="button" class="choice-btn" data-kind="${o.kind}">${esc(o.text)}<small>${o.label}?</small></button>`).join("");
-  document.querySelectorAll("[data-kind]").forEach((b) => b.addEventListener("click", () => choose(b)));
-  $("#feedback").textContent = ""; $("#nextBtn").hidden = true;
+  $("#feedback").textContent = "";
+  $("#nextBtn").hidden = true;
   hud(); renderShelf();
 }
-function choose(btn) {
-  const v = VERSES[G.order[G.i]]; const kind = btn.dataset.kind; const ok = kind === "vibe";
-  document.querySelectorAll("[data-kind]").forEach((b) => { b.disabled = true; });
+function choose(kind, rect) {
+  const v = VERSES[G.order[G.i]]; const ok = kind === "vibe"; G.answered = true;
+  if (ok) juiceC.confetti(rect.x + rect.w / 2, rect.y + 30); else juiceC.shake(8);
   if (ok) { G.carried++; G.unlocked.add(v.record); }
   else G.hearts--;
   const fb = $("#feedback"); fb.className = `feedback ${ok ? "good" : "bad"}`;
@@ -110,5 +166,4 @@ async function endGame() {
   $("#endExplain").innerHTML = `<strong>Engine next:</strong> ${esc(next?.rationale || "Another night.")}<br><span class="hint">Cultural evidence (Stages 3–4–8): distinctions and meaning carried — the anti-dictionary skill every real translation eventually demands.</span>`;
   show("screen-end"); syncBadge();
 }
-Juice.observeFeedback("#feedback");
 boot().catch((e) => { $("#titleContext").textContent = `Milonga failed (${e.message}). Reload.`; $("#startBtn").disabled = true; });

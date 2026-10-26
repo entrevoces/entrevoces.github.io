@@ -27,15 +27,9 @@
   </section>
   <section id="screen-play" class="screen">
     <div class="hud"><span id="hudRound" class="pill pill-strong"></span><span id="hudHearts" class="pill"></span><span id="hudShelf" class="pill"></span></div>
-    <div class="verse-card panel">
-      <p class="kicker">El verso · The verse <span id="verseMood" class="mood"></span></p>
-      <blockquote id="verseText" class="verse"></blockquote>
-      <small id="verseSub" class="demo-sub"></small>
-      <p id="verseQ" class="verse-q"></p>
-      <div id="choiceZone" class="choice-zone"></div>
-      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-      <div class="play-actions"><button id="listenVerseBtn" class="btn" type="button">Hear the verse</button><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next verse</button><button id="quitBtn" class="btn btn-ghost" type="button">Leave the floor</button></div>
-    </div>
+    <canvas id="game" width="960" height="540" aria-label="Milonga del Sentido — tap the record whose rendering carries the verse"></canvas>
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    <div class="play-actions"><button id="listenVerseBtn" class="btn" type="button">Hear the verse</button><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next verse</button><button id="quitBtn" class="btn btn-ghost" type="button">Leave the floor</button></div>
     <section class="panel shelf-panel" aria-labelledby="shelfTitle">
       <h3 id="shelfTitle">Your record shelf — the classics, on their own records</h3>
       <p class="hint">Unlock a record by carrying its verse. Then go hear the real thing — we link, we never copy lyrics.</p>

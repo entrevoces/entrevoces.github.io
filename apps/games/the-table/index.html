@@ -27,13 +27,8 @@
   </section>
   <section id="screen-play" class="screen">
     <div class="hud"><span id="hudSit" class="pill pill-strong"></span><span class="meter-wrap">Trust <span class="meter"><span id="trustFill"></span></span></span><span id="hudTurn" class="pill"></span></div>
-    <div class="table-scene">
-      <div class="seat seat-left"><div class="face" id="faceA">A</div><span id="nameA">—</span></div>
-      <div class="bubble" id="bubbleText">…</div>
-      <div class="seat seat-right"><div class="face face-you">You</div><span>Interpreter</span></div>
-    </div>
+    <canvas id="game" width="960" height="540" aria-label="The Table — choose a handling gesture, then the rendering you stand behind"></canvas>
     <p id="stakeLine" class="stake-line"></p>
-    <div id="choiceZone"></div>
     <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
     <div class="play-actions"><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next turn</button><button id="quitBtn" class="btn btn-ghost" type="button">Leave the table</button></div>
   </section>

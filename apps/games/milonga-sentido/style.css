@@ -29,3 +29,4 @@ footer{max-width:900px;margin:0 auto;padding:0 18px 26px;color:#d8b7ae;font-size
 .record{position:relative;padding-left:58px}
 .record::before{content:"";position:absolute;left:13px;top:16px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle,#c9a227 0 5px,#241114 6px 13px,#4a2c33 14px 15px,#241114 16px)}
 .record.locked::before{filter:grayscale(1);opacity:.5}
+canvas#game{width:100%;height:auto;display:block;border:1.5px solid #0f0508;border-radius:14px;background:#150a0e;box-shadow:0 4px 0 #0f0508;touch-action:manipulation}

@@ -6,11 +6,14 @@ import * as core from "../../../packages/engine-core/index.js";
 import { EngineClient } from "../../../packages/engine-client/engine-client.js";
 import { Juice } from "../../../packages/game-kit/juice.js";
 const $ = (s) => document.querySelector(s);
+const cv = $("#game"), ctx = cv.getContext("2d");
+const W = 960, H = 540;
+const juice = new Juice(cv);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 let engine, concepts = [], targetLang = "es";
 let shop = null;
 function hubHref() { const p = new URLSearchParams(location.search); return `../../hub/?domain=${encodeURIComponent(engine?.domainId || p.get("domain") || "oregon-medical")}&learner=${encodeURIComponent(engine?.learnerId || p.get("learner") || "")}&engine=${encodeURIComponent(engine?.engineUrl || p.get("engine") || "")}`; }
-function show(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("is-active", s.id === id)); }
+function show(id) { if (typeof raf !== "undefined" && raf) cancelAnimationFrame(raf); document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("is-active", s.id === id)); }
 function tgt(c) { return c.terms[targetLang]?.term || c.terms.es?.term || c.terms.en.term; }
 function shuffle(a) { const x = [...a]; for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; } return x; }
 function dailyMark(gameId, score) { try { const k = `ev:daily:${gameId}`; const today = new Date().toDateString(); let d = {}; try { d = JSON.parse(localStorage.getItem(k) || "{}"); } catch {} const yest = new Date(Date.now() - 86400000).toDateString(); d.streak = d.lastDay === today ? (d.streak || 1) : d.lastDay === yest ? (d.streak || 0) + 1 : 1; d.lastDay = today; d.best = Math.max(d.best || 0, score || 0); d.plays = (d.plays || 0) + 1; localStorage.setItem(k, JSON.stringify(d)); return d; } catch { return { streak: 1, best: score || 0 }; } }
@@ -33,6 +36,7 @@ async function boot() {
   $("#againBtn").addEventListener("click", startShop);
   $("#nextBtn").addEventListener("click", nextJob);
   $("#quitBtn").addEventListener("click", endShop);
+  cv.addEventListener("pointerdown", (e) => { if (!shop || shop.done) return; const r = cv.getBoundingClientRect(); const x = (e.clientX - r.left) * (W / r.width), y = (e.clientY - r.top) * (H / r.height); for (let i = 0; i < 3; i++) { const b = segRect(i); if (x >= b.x && x <= b.x + b.w && y >= b.y - 30 && y <= b.y + b.h) { pickSegment(i); return; } } const j = shop.jobs[shop.i]; for (let i = 0; i < j.tray.length; i++) { const b = trayRect(i); if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { fitPart(j.tray[i]); return; } } });
 }
 
 function buildJob(concept) {
@@ -57,30 +61,68 @@ function buildJob(concept) {
   return { concept, source: ex.en, chunks, display, badIdx, tray, fixedChunk: chunks[badIdx] };
 }
 
+let raf = null;
+function segRect(i) { return { x: 130 + i * 245, y: 218, w: 225, h: 108 }; }
+function trayRect(i) { return { x: 130 + i * 245, y: 408, w: 225, h: 64 }; }
 function startShop() {
-  shop = { jobs: shuffle(concepts).slice(0, 8).map(buildJob), i: 0, fixed: 0, spotted: 0, picked: null };
-  show("screen-play"); loadJob();
+  shop = { jobs: shuffle(concepts).slice(0, 8).map(buildJob), i: 0, fixed: 0, spotted: 0, picked: null, done: false, smoke: 0, t: 0 };
+  show("screen-play"); loadJob(); loop();
 }
+function loop() { if (!shop) return; shop.t++; shop.smoke++; draw(); juice.update(); if ($("#screen-play").classList.contains("is-active")) raf = requestAnimationFrame(loop); }
+function draw() {
+  if (!shop) return;
+  const j = shop.jobs[shop.i];
+  const { x: sx, y: sy } = juice.shakeOffset();
+  ctx.save(); ctx.translate(sx, sy);
+  ctx.fillStyle = "#202b30"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#2e3d42"; ctx.fillRect(0, 0, W, 120);
+  for (const lx of [180, 480, 780]) { ctx.fillStyle = "rgba(255,214,130,.12)"; ctx.beginPath(); ctx.moveTo(lx - 12, 0); ctx.lineTo(lx + 12, 0); ctx.lineTo(lx + 42, 120); ctx.lineTo(lx - 42, 120); ctx.closePath(); ctx.fill(); ctx.fillStyle = "#ffd166"; ctx.fillRect(lx - 13, 0, 26, 12); }
+  // blueprint (source)
+  ctx.fillStyle = "#fdf6e3"; ctx.beginPath(); ctx.roundRect(130, 26, 700, 76, 9); ctx.fill();
+  ctx.fillStyle = "#56705f"; ctx.font = "700 11px 'Public Sans', sans-serif"; ctx.textAlign = "left"; ctx.fillText("THEY SAID — THE BLUEPRINT", 148, 48);
+  ctx.fillStyle = "#231a12"; ctx.font = "600 15px 'Public Sans', sans-serif"; wrap(`“${j.source}”`, 148, 72, 664, 19);
+  // conveyor machine
+  ctx.fillStyle = "#171f23"; ctx.fillRect(100, 330, 760, 26);
+  ctx.fillStyle = "#39444a"; for (let i = 0; i < 12; i++) { ctx.beginPath(); ctx.arc(126 + i * 66, 343, 11, 0, 7); ctx.fill(); }
+  ctx.fillStyle = "#f2e6c9"; ctx.font = "800 13px 'Public Sans', sans-serif"; ctx.textAlign = "center"; ctx.fillText("IT WENT OUT AS — TAP THE SMOKING SEGMENT", 480, 196);
+  j.display.forEach((seg, i) => {
+    const r = segRect(i);
+    const lifted = shop.picked === i ? -26 : 0;
+    const fixed = shop.done && i === j.badIdx;
+    ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.beginPath(); ctx.roundRect(r.x + 5, r.y + 8 + lifted, r.w, r.h, 10); ctx.fill();
+    ctx.fillStyle = fixed ? "#177a6c" : shop.picked === i ? "#fdf0d5" : "#4a5a61";
+    ctx.beginPath(); ctx.roundRect(r.x, r.y + lifted, r.w, r.h, 10); ctx.fill();
+    ctx.strokeStyle = fixed ? "#7fe3c8" : "#263238"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = fixed ? "#fff" : "#f2e6c9"; ctx.font = "700 14px 'Public Sans', sans-serif"; wrap(seg, r.x + 12, r.y + lifted + 28, r.w - 24, 18, true);
+    if (!shop.done && i === j.badIdx) { // the wound smokes — visible, findable by eye
+      for (let k = 0; k < 3; k++) { const yy = r.y + lifted - 6 - ((shop.smoke * 1.2 + k * 17) % 46); ctx.fillStyle = `rgba(200,200,200,${0.5 - ((shop.smoke + k * 17) % 46) / 100})`; ctx.beginPath(); ctx.arc(r.x + r.w / 2 + Math.sin(shop.t * 0.1 + k) * 8, yy, 6 + k * 2, 0, 7); ctx.fill(); }
+      ctx.fillStyle = "#ff8a5c"; ctx.beginPath(); ctx.arc(r.x + r.w / 2, r.y + lifted + 8, 3 + Math.sin(shop.t * 0.3) * 1, 0, 7); ctx.fill();
+    }
+  });
+  ctx.fillStyle = "#f2e6c9"; ctx.font = "800 13px 'Public Sans', sans-serif"; ctx.fillText("PARTS TRAY — FIT THE HONEST PART", 480, 392);
+  j.tray.forEach((part, i) => {
+    const r = trayRect(i);
+    ctx.fillStyle = "#171f23"; ctx.beginPath(); ctx.roundRect(r.x, r.y, r.w, r.h, 9); ctx.fill();
+    ctx.strokeStyle = "#e9a13b"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = "#ffe9b0"; ctx.font = "700 13px 'Public Sans', sans-serif"; wrap(part, r.x + 10, r.y + 25, r.w - 20, 16, true);
+  });
+  juice.draw(); ctx.restore();
+}
+function wrap(text, x, y, maxW, lh, center = false) { const words = String(text).split(/\s+/); let line = "", yy = y; for (const w of words) { const test = line ? line + " " + w : w; if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, center ? x + maxW / 2 : x, yy); if (center) ctx.textAlign = "center"; yy += lh; line = w; } else line = test; } if (line) ctx.fillText(line, center ? x + maxW / 2 : x, yy); }
 function loadJob() {
   const j = shop.jobs[shop.i];
-  shop.picked = null;
+  shop.picked = null; shop.done = false;
   $("#hudJob").textContent = `Job ${shop.i + 1} / ${shop.jobs.length} · ${j.concept.terms.en.term}`;
   $("#hudFixed").textContent = `Repaired ${shop.fixed}`;
-  $("#sourceText").textContent = `“${j.source}”`;
-  $("#segmentRow").innerHTML = j.display.map((seg, i) => `<button type="button" class="segment" data-seg="${i}">${esc(seg)}</button>`).join("");
-  $("#trayRow").innerHTML = j.tray.map((t) => `<button type="button" class="tray-part" data-part="${esc(t)}">${esc(t)}</button>`).join("");
-  $("#feedback").textContent = ""; $("#nextBtn").hidden = true;
-  document.querySelectorAll("[data-seg]").forEach((b) => b.addEventListener("click", () => pickSegment(Number(b.dataset.seg), b)));
-  document.querySelectorAll("[data-part]").forEach((b) => b.addEventListener("click", () => fitPart(b)));
+  $("#feedback").textContent = "One segment smokes. Tap it to lift, then fit the honest part.";
+  $("#feedback").className = "feedback"; $("#nextBtn").hidden = true;
 }
-function pickSegment(i, el) {
-  shop.picked = i;
-  document.querySelectorAll(".segment").forEach((s) => s.classList.remove("picked"));
-  el.classList.add("picked");
+function pickSegment(i) {
+  shop.picked = i; Juice.pop();
   $("#feedback").textContent = "Segment on the lift. Now fit the honest part from the tray.";
   $("#feedback").className = "feedback";
 }
-function fitPart(btn) {
+function fitPart(partText) { const btn = { dataset: { part: partText } };
   if (shop.picked === null) { $("#feedback").textContent = "Lift a segment first — diagnosis before parts."; return; }
   const j = shop.jobs[shop.i];
   const spotted = shop.picked === j.badIdx;
@@ -88,8 +130,8 @@ function fitPart(btn) {
   const ok = spotted && fitted;
   if (spotted) shop.spotted++;
   if (ok) shop.fixed++;
-  document.querySelectorAll(".segment").forEach((s, i) => { s.disabled = true; if (i === j.badIdx) s.classList.add("fixed"); });
-  document.querySelectorAll(".tray-part").forEach((b) => { b.disabled = true; });
+  shop.done = true;
+  if (ok) { Juice.good(); juice.confetti(480, 240); } else { Juice.bad(); juice.shake(7); }
   const fb = $("#feedback");
   fb.className = `feedback ${ok ? "good" : "bad"}`;
   fb.textContent = ok
@@ -112,5 +154,4 @@ async function endShop() {
   $("#endExplain").innerHTML = `<strong>Engine next:</strong> ${esc(next?.rationale || "More jobs.")}<br><span class="hint">Repair evidence (Stage 7) exists only here — producing and proofreading are different muscles.</span>`;
   show("screen-end"); syncBadge();
 }
-Juice.observeFeedback("#feedback");
 boot().catch((e) => { $("#titleContext").textContent = `Shop failed (${e.message}). Reload.`; $("#startBtn").disabled = true; });

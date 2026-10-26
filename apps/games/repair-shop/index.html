@@ -27,16 +27,9 @@
   </section>
   <section id="screen-play" class="screen">
     <div class="hud"><span id="hudJob" class="pill pill-strong"></span><span id="hudFixed" class="pill"></span></div>
-    <div class="bench-card">
-      <p class="bench-label">They said</p>
-      <blockquote id="sourceText" class="source-text"></blockquote>
-      <p class="bench-label">It went out as — tap the broken segment</p>
-      <div id="segmentRow" class="segment-row"></div>
-      <p class="bench-label">Parts tray — fit the honest part</p>
-      <div id="trayRow" class="tray-row"></div>
-      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-      <div class="play-actions"><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next job</button><button id="quitBtn" class="btn btn-ghost" type="button">Close shop</button></div>
-    </div>
+    <canvas id="game" width="960" height="540" aria-label="Repair Shop — tap the smoking segment, then fit the honest part"></canvas>
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    <div class="play-actions"><button id="nextBtn" class="btn btn-primary" type="button" hidden>Next job</button><button id="quitBtn" class="btn btn-ghost" type="button">Close shop</button></div>
   </section>
   <section id="screen-end" class="screen">
     <div class="panel panel-hero">
