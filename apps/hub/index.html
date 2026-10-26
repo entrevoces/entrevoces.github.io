@@ -63,7 +63,7 @@
   </section>
 
   <section id="games" aria-labelledby="gamesTitle">
-    <h2 id="gamesTitle" class="section-title">Eleven doors. One career. No repeated verb.</h2>
+    <h2 id="gamesTitle" class="section-title">Thirteen doors. One career. No repeated verb.</h2>
     <p class="hint section-hint">Each place below is a complete standalone site — a studio, a night river, a shooter, a watermelon reef. Different hands, different stakes; the same learner walks through every door.</p>
     <div class="game-grid">
       <article class="game-card">
@@ -155,6 +155,22 @@
         <a class="btn btn-primary game-link" data-game="melon-reef" href="../games/melon-reef/">Dive the reef</a>
       </article>
       <article class="game-card">
+        <div class="game-art art-loteria" aria-hidden="true"><span>LA</span></div>
+        <p class="verb-line">GATHER · call, listen, mark together</p>
+        <h3>Lotería de Aula</h3>
+        <p class="hook">The classroom lotería: one caller, up to four boards, a whole room listening in two languages. Project it and play together.</p>
+        <p class="meta">Trains: listening, equivalents · group play</p>
+        <a class="btn btn-primary game-link" data-game="loteria-aula" href="../games/loteria-aula/">¡A jugar!</a>
+      </article>
+      <article class="game-card">
+        <div class="game-art art-milonga" aria-hidden="true"><span>MS</span></div>
+        <p class="verb-line">FEEL · carry the vibe</p>
+        <h3>Milonga del Sentido</h3>
+        <p class="hook">Tango, culturally translated: lunfardo verses, faroles, the arrabal — pick the rendering that carries the feeling and unlock Gardel's records (linked to Spotify &amp; Apple Music).</p>
+        <p class="meta">Trains: cultural translation, distinctions · not interpreting</p>
+        <a class="btn btn-primary game-link" data-game="milonga-sentido" href="../games/milonga-sentido/">Enter the milonga</a>
+      </article>
+      <article class="game-card">
         <div class="game-art art-roblox" aria-hidden="true"><span>RB</span></div>
         <p class="verb-line">ROBLOX · obby islands (Studio)</p>
         <h3>Puente Islands</h3>
@@ -205,7 +221,7 @@
         <select id="makerWho"><option value="me">Me — I want to practise</option><option value="class">My class or group</option><option value="friend">A friend or colleague</option></select>
       </label>
       <label>2 · What should players DO?
-        <select id="makerVerb"><option value="term-rush">Catch falling words fast (quick, exciting)</option><option value="echo-sequence">Remember a growing chain (calm, focused)</option><option value="repair-shop">Spot and fix mistakes (careful, satisfying)</option><option value="concept-clinch">Build a little studio, slowly (relaxed, creative)</option><option value="neon-bastion">Shoot drones from platforms (a shooter!)</option><option value="melon-reef">Dive underwater and harvest melons by ear (peaceful)</option></select>
+        <select id="makerVerb"><option value="term-rush">Catch falling words fast (quick, exciting)</option><option value="echo-sequence">Remember a growing chain (calm, focused)</option><option value="repair-shop">Spot and fix mistakes (careful, satisfying)</option><option value="concept-clinch">Build a little studio, slowly (relaxed, creative)</option><option value="neon-bastion">Shoot drones from platforms (a shooter!)</option><option value="melon-reef">Dive underwater and harvest melons by ear (peaceful)</option><option value="loteria-aula">Call a lotería for the whole class (group, joyful)</option><option value="milonga-sentido">Translate tango songs & culture (music, feeling)</option></select>
       </label>
       <label>3 · Give it a name
         <input id="makerName" type="text" placeholder="e.g. My Clinic Words Game" maxlength="40">
@@ -213,6 +229,46 @@
       <button id="makerBtn" class="btn btn-primary" type="button">Make my game</button>
     </div>
     <div id="makerOut" aria-live="polite"></div>
+  </section>
+
+
+  <section class="card" id="profile" aria-labelledby="profileTitle">
+    <h2 id="profileTitle">Your profile — how you train</h2>
+    <div class="setup-grid">
+      <label>Your name (for classrooms &amp; leaderboards)<input id="profileName" type="text" placeholder="e.g. Alex" maxlength="30"></label>
+      <label class="check-row"><input id="demoModeToggle" type="checkbox"> Demo mode — English subtitles under called cards, verses, and key gameplay text, so guests who don't speak the language can follow a demo</label>
+    </div>
+    <h3>Training modes I care about</h3>
+    <p class="hint">Modes are different crafts, not labels: telephone strips the picture, simultaneous forbids pausing. Your picks re-weight what the engine recommends — focus changes training.</p>
+    <div id="modeGrid" class="study-grid" role="group" aria-label="Choose training modes"></div>
+    <h3>Areas I want to focus (this world)</h3>
+    <div id="areaGrid" class="study-grid" role="group" aria-label="Choose interest areas"></div>
+    <div class="row-actions"><button id="saveProfileBtn" class="btn btn-primary" type="button">Save profile</button><button id="startOverBtn" class="btn btn-ghost" type="button">Start over in this world</button><span id="profileStatus" class="hint" role="status"></span></div>
+  </section>
+
+  <section class="card" id="classrooms" aria-labelledby="classTitle">
+    <h2 id="classTitle">Classrooms — learn with your people</h2>
+    <p>Belong to a few, or none — it's optional. Think of your local translation class. Classmates below are <strong>imagined demo classmates</strong> (same class code, same class, clearly labelled): their hobbies suggest games, their pace sets your leaderboard.</p>
+    <div class="setup-grid">
+      <label>New classroom name<input id="classNameInput" type="text" placeholder="e.g. Saturday Translation Circle" maxlength="40"></label>
+      <button id="createClassBtn" class="btn btn-primary" type="button">Create classroom</button>
+      <label>Join with a class code<input id="joinCodeInput" type="text" placeholder="AULA-0000" maxlength="12"></label>
+      <button id="joinClassBtn" class="btn" type="button">Join classroom</button>
+    </div>
+    <div id="classList"></div>
+    <div id="leaderboard"></div>
+    <div id="classSuggest"></div>
+  </section>
+
+  <section class="card" id="instructor" aria-labelledby="instructorTitle">
+    <h2 id="instructorTitle">Instructor view — how the class improves</h2>
+    <div id="instructorBox"><p class="hint">Join a classroom and play a little; guidance appears here.</p></div>
+  </section>
+
+  <section class="card" id="shelf" aria-labelledby="shelfTitle">
+    <h2 id="shelfTitle">For your shelf — recommended because it helps, nothing else</h2>
+    <p class="hint">No ads, no affiliate links, nothing sold. Books, standards, and free practice corpora matched to your thinnest stages and chosen modes.</p>
+    <div id="resourceBox"></div>
   </section>
 
   <section class="card" aria-labelledby="sourcesTitle">

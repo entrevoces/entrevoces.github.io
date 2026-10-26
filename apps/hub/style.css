@@ -70,3 +70,9 @@ footer { max-width:980px; margin:0 auto; padding:0 20px 28px; color:var(--ink-so
 @media (prefers-reduced-motion: reduce) { *{transition:none!important; animation:none!important;} }
 .art-bastion{background:linear-gradient(160deg,#2a1450,#8a2d4a 60%,#ffb347);color:#fff}
 .art-reef{background:linear-gradient(160deg,#12708c,#0a4a5e 60%,#1d7a3a);color:#fff}
+.art-loteria{background:#e9a13b;color:#4a2c17}
+.art-milonga{background:#7a2230;color:#f7e9e4}
+.check-row{display:flex;gap:9px;align-items:flex-start;font-weight:600}
+.lb-row{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border:1px solid #cfe0d8;border-radius:8px;margin:5px 0;background:#fff}
+.lb-row.you{border-color:#0e7a68;background:#eefaf6;font-weight:700}
+.hobby-chip{margin:4px 6px 4px 0}

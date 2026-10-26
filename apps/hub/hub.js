@@ -11,9 +11,14 @@ const COMPETENCE_LABELS = {
   "listening": "Listening", "speech-production": "Speech production", "meaning-transfer": "Meaning transfer",
   "cognitive-interpreting": "Cognitive interpreting", "professional-judgment": "Professional judgment", "integrated-performance": "Integrated performance",
 };
-const GAME_DIRS = { "concept-clinch": "../games/concept-clinch/", "shift-consecutive": "../games/shift-consecutive/", "bench-call": "../games/bench-call/", "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "the-table": "../games/the-table/", "repair-shop": "../games/repair-shop/", "vr-lingua-lab": "../games/vr-lingua-lab/", "vocab-craft": "../games/vocab-craft/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/" };
+const GAME_DIRS = { "concept-clinch": "../games/concept-clinch/", "shift-consecutive": "../games/shift-consecutive/", "bench-call": "../games/bench-call/", "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "the-table": "../games/the-table/", "repair-shop": "../games/repair-shop/", "vr-lingua-lab": "../games/vr-lingua-lab/", "vocab-craft": "../games/vocab-craft/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/", "loteria-aula": "../games/loteria-aula/", "milonga-sentido": "../games/milonga-sentido/" };
 
 let engine, currentNext = null, currentDomain = null, currentConcepts = [];
+const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k) || ""); } catch { return fb; } };
+const selectedModeIds = () => loadJSON("ev:modes", []);
+const selectedModes = () => selectedModeIds().map((id) => core.modeById(id)).filter(Boolean);
+const loadClasses = () => loadJSON("ev:classrooms", []);
+const saveClasses = (x) => localStorage.setItem("ev:classrooms", JSON.stringify(x));
 
 async function loadFallbackConcepts() {
   try { const r = await fetch("concepts-subset.json"); if (r.ok) return await r.json(); } catch { /* ignore */ }
@@ -107,11 +112,62 @@ async function boot() {
     const who = $("#makerWho").selectedOptions[0]?.textContent || "Me";
     const name = $("#makerName").value.trim() || "My game";
     const world = currentDomain?.label.en || engine.domainId;
-    const dirs = { "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "repair-shop": "../games/repair-shop/", "concept-clinch": "../games/concept-clinch/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/" };
+    const dirs = { "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "repair-shop": "../games/repair-shop/", "concept-clinch": "../games/concept-clinch/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/", "loteria-aula": "../games/loteria-aula/", "milonga-sentido": "../games/milonga-sentido/" };
     const url = `${dirs[gameId]}?domain=${encodeURIComponent(engine.domainId)}&learner=${encodeURIComponent(engine.learnerId)}&engine=${encodeURIComponent(engine.engineUrl)}&lang=${encodeURIComponent($("#pairSelect").value)}&title=${encodeURIComponent(name)}`;
     $("#makerOut").innerHTML = `<article class="lab-concept"><h3 style="margin:8px 0;">${esc(name)}</h3><p>Made for: <strong>${esc(who)}</strong> · World: <strong>${esc(world)}</strong> · Words inside: <strong>${currentConcepts.length} from your world</strong> (nothing from other worlds leaks in).</p><p>Press play. That is all. Your score will appear in Your Mirror above, and tomorrow the game will greet you with the words you are about to forget.</p><a class="btn btn-primary btn-large" href="${url}">Play ${esc(name)}</a> <button class="btn" type="button" id="makerCopy">Copy the link to share</button> <span id="makerCopied" class="hint"></span></article>`;
     $("#makerCopy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(new URL(url, location.href).href); $("#makerCopied").textContent = "Link copied — paste it anywhere to share your game."; } catch { $("#makerCopied").textContent = new URL(url, location.href).href; } });
   });
+
+  // ---- Profile: name, demo mode, training modes ----
+  $("#profileName").value = localStorage.getItem("ev:profileName") || "";
+  $("#demoModeToggle").checked = localStorage.getItem("ev:demoMode") === "1";
+  const renderModes = () => {
+    const chosen = new Set(selectedModeIds());
+    $("#modeGrid").innerHTML = core.TRAINING_MODES.map((m) => `<button type="button" class="study-card ${chosen.has(m.modeId) ? "is-on" : ""}" data-mode="${esc(m.modeId)}" aria-pressed="${chosen.has(m.modeId)}"><span class="check">${chosen.has(m.modeId) ? "Training" : "Add"}</span><strong>${esc(m.label)}</strong><span class="areas">${esc(m.blurb)}</span></button>`).join("");
+    document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => {
+      const ids = new Set(selectedModeIds());
+      ids.has(b.dataset.mode) ? ids.delete(b.dataset.mode) : ids.add(b.dataset.mode);
+      localStorage.setItem("ev:modes", JSON.stringify([...ids]));
+      renderModes(); refresh();
+    }));
+  };
+  renderModes();
+  $("#saveProfileBtn").addEventListener("click", async () => {
+    localStorage.setItem("ev:profileName", $("#profileName").value.trim());
+    localStorage.setItem("ev:demoMode", $("#demoModeToggle").checked ? "1" : "0");
+    const areas = [...document.querySelectorAll("[data-area].is-on")].map((b) => b.dataset.area);
+    localStorage.setItem("ev:interestAreas", JSON.stringify(areas));
+    $("#profileStatus").textContent = "Saved. Modes now steer your recommendations; demo subtitles follow you into Lotería and the Milonga.";
+    await refresh();
+  });
+  $("#startOverBtn").addEventListener("click", async () => {
+    if (!confirm(`Start over in ${currentDomain?.label.en || engine.domainId}? This world's local evidence clears; other worlds keep theirs. (Synced server copy is untouched.)`)) return;
+    engine.resetDomain(engine.domainId);
+    await refresh();
+    $("#profileStatus").textContent = "Fresh start in this world. Your other worlds remember you.";
+  });
+  // ---- Classrooms ----
+  const renderClasses = () => {
+    const classes = loadClasses();
+    const active = localStorage.getItem("ev:activeClass") || classes[0]?.code || "";
+    $("#classList").innerHTML = classes.length ? classes.map((c) => `<div class="lb-row ${c.code === active ? "you" : ""}"><span><strong>${esc(c.name)}</strong> · code ${esc(c.code)} · ${esc(c.role)}</span><span><button class="btn" data-activate="${esc(c.code)}" type="button">${c.code === active ? "Active" : "Make active"}</button> <button class="btn btn-ghost" data-leave="${esc(c.code)}" type="button">Leave</button></span></div>`).join("") : `<p class="hint">No classrooms yet — create one above, or don't. Solo is a legitimate way to learn.</p>`;
+    document.querySelectorAll("[data-activate]").forEach((b) => b.addEventListener("click", () => { localStorage.setItem("ev:activeClass", b.dataset.activate); renderClasses(); refresh(); }));
+    document.querySelectorAll("[data-leave]").forEach((b) => b.addEventListener("click", () => { saveClasses(loadClasses().filter((c) => c.code !== b.dataset.leave)); renderClasses(); refresh(); }));
+  };
+  $("#createClassBtn").addEventListener("click", () => {
+    const name = $("#classNameInput").value.trim() || "My translation class";
+    const code = `AULA-${Math.abs([...name].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 7) % 9000 + 1000)}`;
+    const classes = loadClasses(); if (!classes.some((c) => c.code === code)) classes.push({ name, code, role: "instructor" });
+    saveClasses(classes); localStorage.setItem("ev:activeClass", code);
+    renderClasses(); refresh();
+  });
+  $("#joinClassBtn").addEventListener("click", () => {
+    const code = ($("#joinCodeInput").value.trim() || "AULA-0000").toUpperCase();
+    const classes = loadClasses(); if (!classes.some((c) => c.code === code)) classes.push({ name: `Class ${code}`, code, role: "learner" });
+    saveClasses(classes); localStorage.setItem("ev:activeClass", code);
+    renderClasses(); refresh();
+  });
+  renderClasses();
 
   renderSources();
   await refresh();
@@ -137,7 +193,7 @@ async function refresh() {
   currentDomain = await engine.getDomain(engine.domainId);
   currentConcepts = await engine.listConcepts(engine.domainId);
   try {
-    currentNext = await engine.getNext(engine.domainId);
+    currentNext = await engine.getNext(engine.domainId, { modeId: selectedModeIds()[0] || null });
   } catch { currentNext = null; }
   const nextBox = $("#nextBox");
   if (currentNext?.conceptId) {
@@ -178,10 +234,40 @@ async function refresh() {
       return `<div class="comp-row"><span>${stageNames[s]}</span><span class="bar"><div style="width:${pct}%"></div></span><span>${n ? `${pct}% · n=${n} · recall ~${Math.round(ret * 100)}%` : "no evidence yet"}</span></div>`;
     }).join("") + (state.dueForReview.length ? `<p><strong>Due before they fade:</strong> ${state.dueForReview.map((d) => `${esc(currentConcepts.find((c) => c.conceptId === d.conceptId)?.terms.en.term || d.conceptId)} (~${Math.round((d.lowestRetention ?? 1) * 100)}%)`).join(" · ")}</p>` : `<p class="hint">Nothing due. New proofs schedule themselves as they age.</p>`);
     try { const streaks = Object.keys(localStorage).filter((k) => k.startsWith("ev:daily:")).map((k) => { try { return { game: k.slice(9), ...JSON.parse(localStorage.getItem(k) || "{}") }; } catch { return null; } }).filter((x) => x && x.streak); if (streaks.length) $("#mirrorStages").innerHTML += `<p><strong>Day streaks:</strong> ${streaks.map((s) => `${esc(s.game)} · ${s.streak} day${s.streak === 1 ? "" : "s"} · best ${s.best}`).join(" · ")}</p>`; } catch {}
-    const games = core.recommendGames({ domain: currentDomain, concepts: currentConcepts, learnerState: state, limit: 3 });
-    const dirs = { "concept-clinch": "../games/concept-clinch/", "shift-consecutive": "../games/shift-consecutive/", "bench-call": "../games/bench-call/", "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "the-table": "../games/the-table/", "repair-shop": "../games/repair-shop/", "vr-lingua-lab": "../games/vr-lingua-lab/", "vocab-craft": "../games/vocab-craft/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/" };
+    const games = core.recommendGames({ domain: currentDomain, concepts: currentConcepts, learnerState: state, limit: 3, modes: selectedModes() });
+    const dirs = { "concept-clinch": "../games/concept-clinch/", "shift-consecutive": "../games/shift-consecutive/", "bench-call": "../games/bench-call/", "term-rush": "../games/term-rush/", "echo-sequence": "../games/echo-sequence/", "the-table": "../games/the-table/", "repair-shop": "../games/repair-shop/", "vr-lingua-lab": "../games/vr-lingua-lab/", "vocab-craft": "../games/vocab-craft/", "neon-bastion": "../games/neon-bastion/", "melon-reef": "../games/melon-reef/", "loteria-aula": "../games/loteria-aula/", "milonga-sentido": "../games/milonga-sentido/" };
     $("#suggestedGames").innerHTML = games.map((g) => `
       <article class="suggest-card"><p class="verb-line">${esc(g.verb)} · Stage ${g.gapStage}</p><h3>${esc(g.name)}</h3><p>${esc(g.reason)}</p><a class="btn btn-primary" href="${dirs[g.gameId] || "../games/concept-clinch/"}?domain=${encodeURIComponent(engine.domainId)}&learner=${encodeURIComponent(engine.learnerId)}&engine=${encodeURIComponent(engine.engineUrl)}&lang=${encodeURIComponent($("#pairSelect").value)}">Play for this gap</a></article>`).join("");
+    try {
+      const chosenAreas = new Set(loadJSON("ev:interestAreas", []));
+      $("#areaGrid").innerHTML = (currentDomain?.translationAreas || []).map((a) => `<button type="button" class="study-card ${chosenAreas.has(a.areaId) ? "is-on" : ""}" data-area="${esc(a.areaId)}"><span class="check">${chosenAreas.has(a.areaId) ? "Focus" : "Add"}</span><strong>${esc(a.label.en)}</strong><span class="areas">${esc(a.setting)} · risk ${esc(a.riskIfMistranslated)}</span></button>`).join("");
+      document.querySelectorAll("[data-area]").forEach((b) => b.addEventListener("click", () => { b.classList.toggle("is-on"); }));
+    } catch {}
+    try {
+      const classes = loadClasses();
+      const activeCode = localStorage.getItem("ev:activeClass") || classes[0]?.code;
+      const activeClass = classes.find((c) => c.code === activeCode);
+      if (activeClass) {
+        const myName = localStorage.getItem("ev:profileName") || "You";
+        const board = core.classroomLeaderboard({ classCode: activeClass.code, learnerName: myName, learnerProofs: state.evidenceCount });
+        $("#leaderboard").innerHTML = `<h3>${esc(activeClass.name)} — this week's proofs</h3>` + board.map((r) => `<div class="lb-row ${r.imagined ? "" : "you"}"><span>#${r.rank} ${esc(r.name)}${r.imagined ? ' <span class="hint">(imagined classmate)</span>' : " (you)"}</span><span>${r.proofs} proofs${r.focusStage ? ` · Stage ${r.focusStage}` : ""}</span></div>`).join("");
+        const mates = core.generateClassmates(activeClass.code);
+        $("#classSuggest").innerHTML = `<h3>Your classmates suggest — by hobby</h3>` + mates.map((m) => `<button type="button" class="btn hobby-chip" data-suggest="${esc(m.suggestedGameId)}" data-who="${esc(m.name)}" data-pitch="${esc(m.pitch)}">${esc(m.name)} · ${esc(m.hobby)}</button>`).join("") + `<div id="suggestOut"></div>`;
+        document.querySelectorAll("[data-suggest]").forEach((b) => b.addEventListener("click", () => { $("#suggestOut").innerHTML = `<p><strong>${esc(b.dataset.who)}</strong> ${esc(b.dataset.pitch)}.</p><a class="btn btn-primary" href="${gameUrl(b.dataset.suggest)}">Play their suggestion</a>`; }));
+        const stageAvg = [1, 2, 3, 4, 5, 6, 7, 8].map((s) => { let sum = 0, n = 0; for (const c of currentConcepts) { const cell = state.stages?.[c.conceptId]?.[s]; if (cell?.evidenceCount) { sum += cell.estimate; n++; } } return { s, pct: n ? Math.round(sum / n * 100) : 0 }; });
+        const thin = [...stageAvg].sort((a, b) => a.pct - b.pct)[0];
+        const mateFocus = mates.reduce((acc, m) => { acc[m.focusStage] = (acc[m.focusStage] || 0) + 1; return acc; }, {});
+        const classStage = Object.entries(mateFocus).sort((a, b) => b[1] - a[1])[0]?.[0];
+        $("#instructorBox").innerHTML = `<p><strong>Where ${esc(activeClass.name)} is thin:</strong> your Stage ${thin.s} sits at ${thin.pct}% (imagined classmates cluster on Stage ${classStage}).</p><p><strong>Improve it together:</strong> ${thin.s <= 2 ? "Run Lotería de Aula on the projector — whole-room listening reps, then re-check the Mirror." : thin.s <= 5 ? "Pair Milonga del Sentido (vibe) with Repair Shop (the second hearing) — distinctions are the class gap." : "Night Shift in pairs: one catches, one renders, swap. Notes visible, arguments encouraged."}</p><p class="hint">Instructor rule of thumb: teach the thinnest stage as a group game first; assign its solo game as homework; re-read this view next week.</p>`;
+      } else {
+        $("#leaderboard").innerHTML = ""; $("#classSuggest").innerHTML = "";
+        $("#instructorBox").innerHTML = `<p class="hint">Create or join a classroom above and this view fills with class-shaped guidance.</p>`;
+      }
+    } catch {}
+    try {
+      const recs = core.recommendResources({ learnerState: state, concepts: currentConcepts, modes: selectedModeIds(), limit: 3 });
+      $("#resourceBox").innerHTML = recs.map((r) => `<div class="lb-row"><span><strong>${esc(r.title)}</strong> — ${esc(r.by)} <span class="hint">(${esc(r.kind)})</span></span></div><p class="hint">${esc(r.reason)}</p>`).join("");
+    } catch {}
   } catch { $("#mirrorStages").innerHTML = `<p class="hint">Mirror warms up after your first proof in any game.</p>`; }
 }
 

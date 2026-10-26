@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lotería de Aula — The classroom calling game · ENTRE VOCES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="game-header">
+  <a class="back-link" id="hubLink" href="../../hub/">← Hub</a>
+  <div><h1>Lotería de Aula</h1><p class="tagline">One caller. Every board listening. The classroom game, in your world's words.</p></div>
+  <span id="syncBadge" class="pill pill-local">Local-only</span>
+</header>
+<main>
+  <section id="screen-title" class="screen is-active">
+    <div class="panel panel-hero">
+      <p class="kicker">Group / classroom · Listening &amp; equivalents (Stages 1–2)</p>
+      <h2>¡Corre y se va! The caller draws. The room hunts.</h2>
+      <p>Project this, or pass one device around. The caller card speaks in your study language — boards carry the English. Tap the matching cell on your board; a full row, column, or the whole board shouts <strong>¡Lotería!</strong> Wrong taps sting (the room will hear about it, kindly). Made for a local translation class: no accounts, no setup, just voices.</p>
+      <p class="controls">Boards: <span class="keycap">2–4 players</span> choose below · Caller: button or <span class="keycap">Space</span> · Demo mode (in your Hub profile) adds English subtitles under every called card, for guests who don't speak the language yet.</p>
+      <p id="titleContext" class="hint">Shuffling the deck…</p>
+      <label class="boardpick">Boards in the room
+        <select id="boardCount"><option value="2">2 boards</option><option value="3">3 boards</option><option value="4" selected>4 boards</option></select>
+      </label>
+      <button id="startBtn" class="btn btn-primary btn-large" type="button">¡A jugar! Start the calling</button>
+    </div>
+  </section>
+  <section id="screen-play" class="screen">
+    <div class="caller panel">
+      <p class="kicker">La carta · The caller calls</p>
+      <div id="callerCard" class="caller-card"><span id="callerTerm">—</span><small id="callerSub" class="demo-sub"></small></div>
+      <div class="caller-actions"><button id="callBtn" class="btn btn-primary btn-large" type="button">Call the next card</button><button id="repeatBtn" class="btn" type="button">Hear it again</button><span id="deckPill" class="pill"></span></div>
+      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    </div>
+    <div id="boards" class="boards"></div>
+    <div class="play-actions"><button id="quitBtn" class="btn btn-ghost" type="button">End the game</button></div>
+  </section>
+  <section id="screen-end" class="screen">
+    <div class="panel panel-hero">
+      <p class="kicker">Game report</p><h2 id="endTitle">¡Lotería!</h2>
+      <div id="endStats"></div><div id="endExplain" class="explain"></div>
+      <div class="play-actions"><button id="againBtn" class="btn btn-primary btn-large" type="button">Shuffle a new game</button><a class="btn btn-large" id="endHubLink" href="../../hub/">Hub</a></div>
+    </div>
+  </section>
+</main>
+<footer><p>Lotería de Aula · ENTRE VOCES · A game your abuela already knows how to teach.</p></footer>
+<script type="module" src="game.js"></script>
+</body>
+</html>

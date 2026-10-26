@@ -1,0 +1,10 @@
+{
+  "gameId": "milonga-sentido",
+  "label": "Milonga del Sentido",
+  "domainIds": ["rio-tango", "oregon-medical", "oregon-legal", "ontario-real-estate", "oregon-cultivation", "california-tax", "ai-technology"],
+  "competences": ["meaning-transfer", "domain-knowledge", "terminology-usage"],
+  "stages": [3, 4, 8],
+  "engineUrl": "http://127.0.0.1:8787",
+  "offlineSeed": "concepts-subset.json",
+  "version": 1
+}
