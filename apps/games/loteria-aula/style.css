@@ -26,3 +26,10 @@ main{max-width:1100px;margin:0 auto;padding:10px 18px 24px}.screen{display:none}
 .play-actions{display:flex;gap:10px;margin-top:14px}.explain{border:1.5px solid var(--teal);background:#f4faf7;border-radius:10px;padding:14px;margin-top:12px}
 footer{max-width:1100px;margin:0 auto;padding:0 18px 26px;color:#7a5c40;font-size:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.picado svg{width:100%;height:54px;display:block}
+.picado{max-width:1100px;margin:0 auto;animation:sway 7s ease-in-out infinite alternate;transform-origin:top center}
+@keyframes sway{from{transform:rotate(-.35deg)}to{transform:rotate(.35deg)}}
+.cell{position:relative}
+.cell.marked::after{content:"";position:absolute;right:7px;top:7px;width:15px;height:11px;border-radius:50%;background:#7a3b16;transform:rotate(-18deg);box-shadow:inset -2px -2px 0 rgba(0,0,0,.25)}
+.caller-card{background:radial-gradient(circle at 50% 0%,#fff6da,#fff 65%)}
